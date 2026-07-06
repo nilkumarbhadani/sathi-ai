@@ -1,0 +1,361 @@
+/* ─── Google Fonts ─────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Nunito:wght@700;800&display=swap');
+
+/* ─── Design Tokens ────────────────────────────────────────────── */
+:root {
+  --bg: #FFF8F0;
+  --surface: #FFFFFF;
+  --fg: #1A1410;
+  --fg-muted: #6B5F57;
+  --accent: #F5820D;
+  --accent-light: #FEF0DC;
+  --accent-dark: #D96A00;
+
+  --soft-orange: #FEF0DC;
+  --soft-blue: #E8F0FE;
+  --soft-green: #E6F4EA;
+  --soft-purple: #F3E8FF;
+  --soft-red: #FDECEA;
+
+  --border: #EDE8E3;
+  --border-strong: #D6CFC8;
+  --radius: 20px;
+  --radius-sm: 12px;
+  --radius-pill: 100px;
+
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 24px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-accent: 'Nunito', system-ui, sans-serif;
+
+  --nav-height: 60px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ─── Dark mode (manual toggle via body.dark-mode) ──────────────── */
+body.dark-mode {
+  --bg: #1A1A1A;
+  --surface: #2D2D2D;
+  --fg: #F5F5F5;
+  --fg-muted: #A0A0A0;
+  --accent: #F97316;
+  --accent-light: #3A2510;
+  --accent-dark: #E56B0A;
+  --border: #3D3D3D;
+  --border-strong: #555555;
+  --soft-orange: #332211;
+  --soft-blue: #1A2433;
+  --soft-green: #142214;
+  --soft-purple: #261A33;
+  --soft-red: #331A1A;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.35);
+  --shadow-md: 0 4px 24px rgba(0,0,0,0.45);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.55);
+}
+
+/* ─── Dark-mode toggle button ───────────────────────────────────── */
+.dark-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0;
+  transition: background 0.3s, border-color 0.3s, transform 0.18s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.dark-mode-toggle:hover {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  transform: scale(1.08);
+}
+
+/* ─── Reset & Base ──────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5em 0;
+  line-height: 1.2;
+}
+
+h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); }
+h2 { font-size: clamp(1.4rem, 4vw, 2rem); }
+h3 { font-size: clamp(1.1rem, 3vw, 1.35rem); }
+
+p { margin: 0 0 1em 0; }
+p:last-child { margin-bottom: 0; }
+
+a { color: var(--accent); text-decoration: none; }
+
+img { max-width: 100%; height: auto; display: block; }
+
+/* ─── Shared Card ───────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 14px 24px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  text-decoration: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 130, 13, 0.35);
+  background: var(--accent-dark);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+  box-shadow: none;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 2px solid var(--border-strong);
+  color: var(--fg);
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-decoration: none;
+  touch-action: manipulation;
+}
+
+.btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
+/* ─── Tags / Badges ─────────────────────────────────────────────── */
+.tag {
+  display: inline-block;
+  background: var(--soft-blue);
+  color: var(--fg);
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* ─── Back Button ───────────────────────────────────────────────── */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  padding: 8px 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 0.18s;
+}
+
+.back-btn:hover { opacity: 0.75; }
+
+.back-btn::before {
+  content: '←';
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* ─── Inputs & Forms ─────────────────────────────────────────────── */
+input[type="text"],
+input[type="email"],
+select,
+textarea {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border);
+  font-family: var(--font-body);
+  font-size: 16px;
+  background: var(--surface);
+  color: var(--fg);
+  transition: border-color 0.18s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(245,130,13,0.15);
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: var(--fg-muted);
+}
+
+/* ─── Highlight Box ─────────────────────────────────────────────── */
+.highlight-box {
+  background: var(--soft-orange);
+  border-left: 4px solid var(--accent);
+  padding: 14px 16px;
+  margin: 12px 0;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 14px;
+}
+
+/* ─── Page Header (shared) ──────────────────────────────────────── */
+.page-header {
+  padding: 20px 20px 0;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* ─── Container ─────────────────────────────────────────────────── */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px 16px 100px;
+}
+
+/* ─── Animations ────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.8); }
+  50%       { opacity: 1;   transform: scale(1);   }
+}
+
+@keyframes fillBar {
+  from { width: 0; }
+}
+
+.anim-fade  { animation: fadeIn  0.4s ease-out both; }
+.anim-slide { animation: slideUp 0.4s ease-out both; }
+
+/* ─── Progress Bar ──────────────────────────────────────────────── */
+.progress-bar-container {
+  width: 100%;
+  height: 10px;
+  background: var(--border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--radius-pill);
+  animation: fillBar 1.2s cubic-bezier(0.4,0,0.2,1) both;
+  animation-delay: 0.2s;
+}
+
+/* ─── Mobile Bottom Safe Area ───────────────────────────────────── */
+.pb-safe {
+  padding-bottom: calc(16px + var(--safe-bottom));
+}
+
+/* ─── Typing dots ───────────────────────────────────────────────── */
+.typing-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--fg-muted);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* ─── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .card { padding: 16px; }
+  .btn-primary { padding: 13px 20px; font-size: 14px; }
+  h1 { font-size: 1.75rem; }
+}

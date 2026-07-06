@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Sathi AI — Universal AI Tutor for everyone. Padhai ko fun banao!">
+    <title>Sathi AI — Universal AI Tutor</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body { padding: 0; overflow-x: hidden; }
+
+        /* ── Navbar ─────────────────────────────────────────────── */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--fg);
+        }
+
+        .logo-icon {
+            width: 34px;
+            height: 34px;
+            background: var(--accent);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        /* ── Hero ────────────────────────────────────────────────── */
+        .hero {
+            padding: clamp(40px, 8vw, 80px) 20px 30px;
+            text-align: center;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .hero h1 { margin-bottom: 16px; }
+
+        .hero p {
+            font-size: clamp(15px, 2.5vw, 18px);
+            color: var(--fg-muted);
+            margin-bottom: 32px;
+        }
+
+        /* ── Illustration ────────────────────────────────────────── */
+        .illustration-container {
+            width: 100%;
+            max-width: 560px;
+            margin: 0 auto 40px;
+            aspect-ratio: 16 / 8;
+            background: var(--soft-orange);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .doodle {
+            position: absolute;
+            font-size: 32px;
+            opacity: 0.18;
+        }
+
+        /* ── Features grid ───────────────────────────────────────── */
+        .features {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            padding: 0 16px 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 560px) {
+            .features { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        .feature-card {
+            padding: 20px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .feature-card span {
+            font-size: 28px;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .feature-card h3 { font-size: 16px; margin-bottom: 8px; }
+
+        .feature-card p { font-size: 14px; color: var(--fg-muted); margin: 0; }
+
+        /* ── CTA ─────────────────────────────────────────────────── */
+        .cta-section {
+            background: var(--accent);
+            padding: clamp(40px, 8vw, 60px) 20px;
+            text-align: center;
+            border-radius: 28px;
+            margin: 20px 16px 40px;
+        }
+
+        .cta-section h2 { color: #fff; margin-bottom: 12px; }
+        .cta-section p  { color: rgba(255,255,255,0.85); margin-bottom: 24px; }
+
+        .btn-white {
+            background: #fff;
+            color: var(--accent);
+            font-weight: 700;
+            padding: 14px 28px;
+            border-radius: var(--radius-pill);
+            text-decoration: none;
+            display: inline-block;
+            font-size: 15px;
+            transition: transform 0.18s, box-shadow 0.18s;
+        }
+
+        .btn-white:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        footer {
+            text-align: center;
+            padding: 24px 20px;
+            color: var(--fg-muted);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="../index.html" class="logo">
+            <div class="logo-icon">🎓</div>
+            Sathi AI
+        </a>
+        <div style="display:flex; gap:12px; align-items:center;">
+            <button class="dark-mode-toggle" onclick="SathiDarkMode.toggle()" aria-label="Toggle dark mode"><span class="dark-mode-icon">🌙</span></button>
+            <a href="onboarding.html" class="btn-primary">Get Started</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>Padhai ab burden nahi, <span style="color:var(--accent);">fun</span> hogi!</h1>
+        <p>Students from every domain, meet your new BFF. Sathi AI explains everything in Hinglish, motivates you, and helps you ace your goals with zero stress.</p>
+
+        <div class="illustration-container">
+            <div style="font-size:clamp(60px,12vw,90px);">🧘‍♂️📚✨</div>
+            <div class="doodle" style="top:16px;left:30px;">🎨</div>
+            <div class="doodle" style="bottom:20px;right:40px;">🏛️</div>
+            <div class="doodle" style="top:50%;left:8%;">⚖️</div>
+            <div class="doodle" style="top:10%;right:10%;">📝</div>
+        </div>
+
+        <a href="onboarding.html" class="btn-primary" style="font-size:16px;padding:16px 32px;">Start Studying with Sathi</a>
+    </section>
+
+    <div class="features">
+        <div class="feature-card" style="background:var(--soft-blue);">
+            <span>🗣️</span>
+            <h3>Hinglish Explanations</h3>
+            <p>"Bhai, Sociology ka ye concept aise samjho..." Simple, friendly, and to the point.</p>
+        </div>
+        <div class="feature-card" style="background:var(--soft-green);">
+            <span>📝</span>
+            <h3>Deep Notes + Highlights</h3>
+            <p>Har topic depth mein aur exam ke liye important points automatically highlight.</p>
+        </div>
+        <div class="feature-card" style="background:var(--soft-purple);">
+            <span>🌈</span>
+            <h3>Calm &amp; Motivating</h3>
+            <p>Jab bhi low feel ho, Sathi is here. Friendly tone, constant support.</p>
+        </div>
+    </div>
+
+    <section class="cta-section">
+        <h2>Ready to ace your goals?</h2>
+        <p>Join thousands of students across all domains who are studying smarter, not harder.</p>
+        <a href="onboarding.html" class="btn-white">Create My Profile</a>
+    </section>
+
+    <footer>
+        <p>© 2026 Sathi AI. Made with ❤️ for All Students.</p>
+    </footer>
+    <script src="../js/dark-mode.js"></script>
+</body>
+</html>

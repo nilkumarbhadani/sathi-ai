@@ -1,0 +1,228 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sathi AI — Your Arts Study BFF</title>
+    <style>
+        :root {
+            --bg: oklch(96% 0.015 85);
+            --surface: oklch(100% 0 0);
+            --fg: oklch(25% 0.02 85);
+            --accent: oklch(78% 0.14 55);
+            --muted: oklch(60% 0.015 85);
+            --border: oklch(90% 0.02 85);
+            
+            --soft-blue: oklch(92% 0.04 240);
+            --soft-green: oklch(92% 0.04 150);
+            --soft-purple: oklch(92% 0.04 300);
+            --soft-orange: oklch(92% 0.06 55);
+            
+            --radius: 24px;
+            --font-display: 'Söhne', 'Avenir Next', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--fg);
+            font-family: var(--font-body);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-display);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin: 0;
+        }
+
+        .header-badge {
+            background: var(--accent);
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 16px;
+            display: inline-block;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .launcher-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 24px;
+            box-shadow: rgba(0,0,0,0.03) 0px 4px 20px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: rgba(0,0,0,0.06) 0px 12px 30px;
+        }
+
+        .thumb {
+            width: 100%;
+            aspect-ratio: 16/10;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+
+        .tag {
+            background: var(--soft-blue);
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 700;
+            width: fit-content;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-main {
+            background-color: var(--accent);
+            color: var(--fg);
+            border: none;
+            padding: 16px 32px;
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 18px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            box-shadow: rgba(0,0,0,0.1) 0px 4px 12px;
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            margin-top: 8px;
+            opacity: 0.7;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #2ecc71;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-badge">Arts Students ka Best Friend</div>
+        <h1>Meet Sathi AI 👋</h1>
+        <p style="font-size: 1.25rem; opacity: 0.8; max-width: 600px; margin: 16px auto;">
+            A calm, friendly, and motivational study partner for Class 11 & 12. 
+            Hinglish mein samjhega, tension door bhagayega!
+        </p>
+        <a href="screens/landing.html" class="btn-main">Take a Tour ✨</a>
+        <div class="status-pill">
+            <div class="dot"></div> Sathi is ready to talk (Hinglish Mode)
+        </div>
+    </header>
+
+    <div class="launcher-grid">
+        <!-- Landing -->
+        <a href="screens/landing.html" class="card">
+            <div class="thumb" style="background: var(--soft-orange);">✨</div>
+            <div class="tag">Marketing</div>
+            <h3>Landing Page</h3>
+            <p>Sathi AI ka warm welcome aur feature highlights.</p>
+        </a>
+
+        <!-- Onboarding -->
+        <a href="screens/onboarding.html" class="card">
+            <div class="thumb" style="background: var(--soft-purple);">🤝</div>
+            <div class="tag">User Flow</div>
+            <h3>Smart Onboarding</h3>
+            <p>Setup your profile, class, and study goals with a BFF vibe.</p>
+        </a>
+
+        <!-- AI Chat -->
+        <a href="screens/chat.html" class="card">
+            <div class="thumb" style="background: var(--accent);">💬</div>
+            <div class="tag" style="background: var(--soft-green);">Core Feature</div>
+            <h3>BFF AI Chat</h3>
+            <p>Interactive Hinglish conversations with deep concept explanations.</p>
+        </a>
+
+        <!-- Notes -->
+        <a href="screens/subject-notes.html" class="card">
+            <div class="thumb" style="background: var(--soft-green);">📚</div>
+            <div class="tag">Content</div>
+            <h3>Subject Notes</h3>
+            <p>History, Political Science & Sociology chapter summaries.</p>
+        </a>
+
+        <!-- Motivation -->
+        <a href="screens/motivation.html" class="card">
+            <div class="thumb" style="background: var(--soft-blue);">🔥</div>
+            <div class="tag">Vibe</div>
+            <h3>Motivation Corner</h3>
+            <p>Personal notes and quotes for when you feel low.</p>
+        </a>
+
+        <!-- Progress -->
+        <a href="screens/progress.html" class="card">
+            <div class="thumb" style="background: var(--border);">📈</div>
+            <div class="tag">Analytics</div>
+            <h3>Progress Tracker</h3>
+            <p>Track your topics mastered and days to board exams.</p>
+        </a>
+
+        <!-- Doubts -->
+        <a href="screens/doubts.html" class="card">
+            <div class="thumb" style="background: var(--soft-orange);">❓</div>
+            <div class="tag">Utility</div>
+            <h3>Doubt Solving</h3>
+            <p>Instant Hinglish explanations for any tricky question.</p>
+        </a>
+
+        <!-- Quiz -->
+        <a href="screens/quiz.html" class="card">
+            <div class="thumb" style="background: var(--soft-purple);">🎯</div>
+            <div class="tag">Interactive</div>
+            <h3>Practice Quiz</h3>
+            <p>Test your knowledge with friendly feedback from Sathi.</p>
+        </a>
+    </div>
+
+    <footer style="margin-top: 80px; text-align: center; opacity: 0.5; font-size: 14px;">
+        <p>Built for the next generation of Arts Scholars. <br> Sathi AI — Your study partner, forever.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,9 @@
+- 1. Define brand tokens and constants in `brand-spec.md`
+- 2. Create `index.html` as the product launcher/hub
+- 3. Implement the Landing Page (`screens/landing.html`)
+- 4. Design Onboarding Flow (`screens/onboarding.html`)
+- 5. Build the AI Chat Tutor screen (`screens/chat.html`) with Hinglish personality
+- 6. Create Subject-wise Notes Page (`screens/subject-notes.html`)
+- 7. Design Motivation & Progress screens (`screens/motivation.html`, `screens/progress.html`)
+- 8. Implement Doubt Solving & Quiz screens (`screens/doubts.html`, `screens/quiz.html`)
+- 9. Final verification and 5-dim critique

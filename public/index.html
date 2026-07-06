@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Sathi AI — Universal AI Tutor for everyone. Kisi bhi domain ya stream mein apni academic journey continue karo.">
+    <title>Sathi AI — Universal Study Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/auth.js"></script>
+    <script>
+        // Protect this route
+        SathiAuth.requireAuth();
+    </script>
+    <style>
+        body {
+            min-height: 100vh;
+            padding: 0 0 40px;
+        }
+
+        /* ── Top Nav ─────────────────────────── */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 20px;
+            color: var(--fg);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .badge-pill {
+            background: var(--accent);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: var(--radius-pill);
+        }
+
+        /* ── Hero ────────────────────────────── */
+        .hero {
+            text-align: center;
+            padding: 32px 20px 20px;
+        }
+
+        .hero h1 {
+            font-size: clamp(1.6rem, 6vw, 2.4rem);
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            color: var(--fg-muted);
+            font-size: 15px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* ── Grid ────────────────────────────── */
+        .launcher-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            padding: 20px 16px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 560px) {
+            .launcher-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (min-width: 800px) {
+            .launcher-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        .screen-card {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: transform 0.22s cubic-bezier(0.4,0,0.2,1), box-shadow 0.22s;
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .screen-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .screen-card:active {
+            transform: scale(0.97);
+        }
+
+        .screen-thumb {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .screen-label {
+            padding: 0 4px 12px;
+        }
+
+        .screen-label .tag {
+            font-size: 10px;
+            padding: 3px 9px;
+        }
+
+        .screen-label h3 {
+            font-size: 15px;
+            margin: 6px 0 2px;
+        }
+
+        .screen-label p {
+            font-size: 12px;
+            color: var(--fg-muted);
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <a href="screens/landing.html" class="logo">
+            <div class="logo-icon">🎓</div>
+            Sathi AI
+        </a>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <button class="dark-mode-toggle" onclick="SathiDarkMode.toggle()" aria-label="Toggle dark mode"><span class="dark-mode-icon">🌙</span></button>
+            <span class="badge-pill">Universal AI Tutor</span>
+            <button onclick="SathiAuth.logout()" class="btn-ghost" style="padding: 6px 12px; font-size: 12px;">Logout</button>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <h1>Meet Sathi AI 👋</h1>
+        <p>Ek aisa dost jo padhai ko asaan aur exciting banaye.</p>
+    </header>
+
+    <!-- Streak Card Container -->
+    <div class="streak-container anim-slide" style="max-width: 900px; margin: 0 auto 10px; padding: 0 16px; display: none;" id="streakCardContainer">
+        <div class="card streak-card" style="background: var(--soft-orange); border: 1px solid var(--accent); padding: 18px 24px; border-radius: var(--radius); display: flex; align-items: center; gap: 16px; box-shadow: var(--shadow-sm); margin-bottom: 20px;">
+            <div class="streak-icon" style="font-size: 32px; background: var(--surface); width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); border: 1px solid var(--border); flex-shrink: 0;">🔥</div>
+            <div class="streak-details" style="flex: 1; text-align: left;">
+                <h3 style="margin: 0 0 4px; font-size: 17px; color: var(--fg); font-family: var(--font-display);"><span id="streakCount">0</span> Din Ka Streak! 🔥</h3>
+                <p id="streakMsg" style="margin: 0; font-size: 13.5px; color: var(--fg-muted); font-weight: 500;">Shuruat achhi hai, keep going!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="launcher-grid">
+        <a href="screens/landing.html" class="screen-card">
+            <div class="screen-thumb" style="background: var(--soft-orange);">✨</div>
+            <div class="screen-label">
+                <div class="tag" style="background:var(--soft-orange);">Marketing</div>
+                <h3>Landing Page</h3>
+                <p>Sathi AI ka warm welcome.</p>
+            </div>
+        </a>
+        <a href="screens/onboarding.html" class="screen-card">
+            <div class="screen-thumb" style="background: var(--soft-purple);">🤝</div>
+            <div class="screen-label">
+                <div class="tag" style="background:var(--soft-purple);">UX Flow</div>
+                <h3>Onboarding</h3>
+                <p>Setup your profile and goal.</p>
+            </div>
+        </a>
+        <a href="screens/chat.html" class="screen-card">
+            <div class="screen-thumb" style="background: var(--soft-orange);">💬</div>
+            <div class="screen-label">
+                <div class="tag" style="background:var(--accent);color:#fff;">Core</div>
+                <h3>AI Tutor Chat</h3>
+                <p>Deep study with Hinglish BFF.</p>
+            </div>
+        </a>
+        <a href="screens/subject-notes.html" class="screen-card">
+            <div class="screen-thumb" style="background: var(--soft-green);">📚</div>
+            <div class="screen-label">
+                <div class="tag" style="background:var(--soft-green);">Content</div>
+                <h3>Subject Notes</h3>
+                <p>Notes for any subject and stream.</p>
+            </div>
+        </a>
+        <a href="screens/motivation.html" class="screen-card">
+            <div class="screen-thumb" style="background: var(--soft-blue);">🔥</div>
+            <div class="screen-label">
+                <div class="tag" style="background:var(--soft-blue);">Utility</div>
+                <h3>Daily Motivation</h3>
+                <p>Stay positive and focused.</p>
+            </div>
+        </a>
+        <a href="screens/progress.html" class="screen-card">
+            <div class="screen-thumb" style="background: var(--soft-green);">📈</div>
+            <div class="screen-label">
+                <div class="tag" style="background:var(--soft-green);">Dashboard</div>
+                <h3>Progress Tracker</h3>
+                <p>Track your academic progress.</p>
+            </div>
+        </a>
+        <a href="screens/doubts.html" class="screen-card">
+            <div class="screen-thumb" style="background: var(--soft-orange);">❓</div>
+            <div class="screen-label">
+                <div class="tag" style="background:var(--soft-orange);">Feature</div>
+                <h3>Doubt Solving</h3>
+                <p>Instant answers for tricky topics.</p>
+            </div>
+        </a>
+        <a href="screens/quiz.html" class="screen-card">
+            <div class="screen-thumb" style="background: var(--soft-purple);">🎯</div>
+            <div class="screen-label">
+                <div class="tag" style="background:var(--soft-purple);">Interactive</div>
+                <h3>Quiz &amp; Practice</h3>
+                <p>Test your knowledge.</p>
+            </div>
+        </a>
+    </div>
+<script>
+    function updateStreak() {
+        const today = new Date().toLocaleDateString('sv');
+        let lastVisited = localStorage.getItem('sathi_streak_last_visited');
+        let streakCount = parseInt(localStorage.getItem('sathi_streak_count')) || 0;
+        
+        if (!lastVisited) {
+            streakCount = 1;
+            lastVisited = today;
+        } else {
+            const lastDate = new Date(lastVisited + 'T00:00:00');
+            const currentDate = new Date(today + 'T00:00:00');
+            const diffTime = currentDate - lastDate;
+            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 1) {
+                streakCount += 1;
+                lastVisited = today;
+            } else if (diffDays > 1) {
+                streakCount = 1;
+                lastVisited = today;
+            }
+        }
+        
+        localStorage.setItem('sathi_streak_last_visited', lastVisited);
+        localStorage.setItem('sathi_streak_count', streakCount.toString());
+        
+        document.getElementById('streakCount').textContent = streakCount;
+        
+        let msg = "Shuruat achhi hai, keep going!";
+        if (streakCount >= 7) {
+            msg = "Legend level! Sathi proud hai tujhse! 🏆";
+        } else if (streakCount >= 3) {
+            msg = "Arre wah! Consistency ban rahi hai!";
+        }
+        
+        document.getElementById('streakMsg').textContent = msg;
+        document.getElementById('streakCardContainer').style.display = 'block';
+    }
+    
+    updateStreak();
+</script>
+<script src="js/dark-mode.js"></script>
+<script src="components/floating-voice.js"></script>
+</body>
+</html>

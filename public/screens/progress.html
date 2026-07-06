@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Academic Progress Tracker — Sathi AI. Track your prep across any domain.">
+    <title>Your Progress — Sathi AI</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/auth.js"></script>
+    <script>
+        // Protect this route
+        SathiAuth.requireAuth();
+    </script>
+    <style>
+        body { padding: 0; }
+        
+        .top-bar {
+            padding: 14px 16px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px 16px 80px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 20px 0 28px;
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 20px 12px;
+        }
+
+        .stat-value {
+            font-size: clamp(2rem, 6vw, 2.8rem);
+            font-weight: 800;
+            color: var(--accent);
+            line-height: 1;
+            margin: 8px 0 4px;
+            font-family: var(--font-display);
+        }
+
+        .stat-label { font-size: 13px; color: var(--fg-muted); margin: 0; }
+
+        /* Dynamic Subjects List */
+        .progress-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .progress-card { 
+            padding: 20px; 
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .ring-container {
+            position: relative;
+            width: 70px;
+            height: 70px;
+            flex-shrink: 0;
+        }
+
+        .ring-bg {
+            fill: none;
+            stroke: var(--border);
+            stroke-width: 6;
+        }
+
+        .ring-fill {
+            fill: none;
+            stroke: var(--accent);
+            stroke-width: 6;
+            stroke-dasharray: 100; /* Will be set via JS */
+            stroke-dashoffset: 100; 
+            transition: stroke-dashoffset 0.8s ease-out;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .ring-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 800;
+            font-size: 14px;
+            color: var(--fg);
+        }
+
+        .subject-info {
+            flex: 1;
+        }
+
+        .subject-info b { display: block; font-size: 16px; margin-bottom: 4px; }
+        .subject-info p { font-size: 12px; color: var(--fg-muted); margin-bottom: 8px; }
+        
+        .update-progress {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .update-progress button {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--fg);
+            border-radius: 4px;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .update-progress button:hover { background: var(--bg); }
+
+        /* Add Subject Form */
+        .add-subject-card {
+            padding: 20px;
+            margin-bottom: 28px;
+            border: 1px dashed var(--accent);
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--fg);
+        }
+
+        /* Countdown */
+        .countdown-banner {
+            background: linear-gradient(135deg, var(--accent), #FF6B00);
+            color: #fff;
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .countdown-banner h2 { color: #fff; font-size: 2.5rem; margin: 0; }
+        .countdown-banner p  { color: rgba(255,255,255,0.85); margin: 4px 0 0; font-size: 14px; }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        /* Fullscreen Focus Overlay */
+        #focusOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: var(--bg);
+            background: radial-gradient(circle at center, var(--accent-light) 0%, var(--bg) 80%);
+            z-index: 1000;
+            overflow-y: auto;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            box-sizing: border-box;
+            flex-direction: column;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .overlay-content {
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            justify-content: center;
+            height: 100%;
+            min-height: 500px;
+        }
+
+        /* Toggle switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border-strong);
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="../index.html" class="back-btn">Back to Hub</a>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <button class="dark-mode-toggle" onclick="SathiDarkMode.toggle()" aria-label="Toggle dark mode"><span class="dark-mode-icon">🌙</span></button>
+            <button onclick="openFocusOverlay()" class="btn-primary btn-sm">Focus Mode ⏱️</button>
+            <button onclick="SathiAuth.logout()" class="btn-ghost" style="padding: 6px 12px; font-size: 12px;">Logout</button>
+        </div>
+    </div>
+
+    <!-- Fullscreen Focus Overlay -->
+    <div id="focusOverlay" style="display: none;">
+        <button class="back-btn" onclick="closeFocusOverlay()" style="position: absolute; top: 20px; left: 20px; font-size: 15px;">← Exit Focus</button>
+        
+        <div class="overlay-content">
+            <h2 id="overlayHeader" style="margin: 0; font-size: 2rem; color: var(--fg); font-family: var(--font-display);">Focus Session 🧠</h2>
+            <div id="overlaySessionCounter" style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--fg-muted); letter-spacing: 0.05em;">Session 1 of 4</div>
+            
+            <!-- Circular countdown timer -->
+            <div class="timer-circle-container" style="position: relative; width: 220px; height: 220px; margin: 20px auto 10px;">
+                <svg width="220" height="220" viewBox="0 0 220 220">
+                    <circle cx="110" cy="110" r="95" fill="none" stroke="var(--border)" stroke-width="8"></circle>
+                    <circle id="timerRing" cx="110" cy="110" r="95" fill="none" stroke="var(--accent)" stroke-width="8" stroke-dasharray="596.9" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 110 110)"></circle>
+                </svg>
+                <div id="overlayTimerDisplay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; font-weight: 800; font-family: var(--font-display); color: var(--fg);">25:00</div>
+            </div>
+            
+            <!-- Motivational sub-message -->
+            <div id="focusMessage" style="font-size: 15px; color: var(--fg-muted); font-weight: 600; min-height: 24px; margin-bottom: 5px;">"Let's focus!"</div>
+            
+            <!-- Subject Name Selector / Display -->
+            <div class="subject-focus-selector" style="margin-bottom: 5px;">
+                <label for="focusSubjectSelect" style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--fg-muted); margin-bottom: 6px; letter-spacing: 0.05em;">Subject Focus</label>
+                <select id="focusSubjectSelect" style="width: 100%; max-width: 280px; padding: 10px 14px; border-radius: var(--radius-sm); border: 2px solid var(--border); background: var(--surface); color: var(--fg); font-family: var(--font-body); font-weight: 600; font-size: 14px; outline: none; cursor: pointer; text-align-last: center; text-align: center;">
+                    <!-- Dynamically populated -->
+                </select>
+                <div id="focusSubjectNameDisplay" style="display: none; font-size: 18px; font-weight: 800; color: var(--fg); font-family: var(--font-display);">History</div>
+            </div>
+            
+            <!-- Pausing Allowed Toggle -->
+            <div id="pauseToggleContainer" style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px;">
+                <span style="font-size: 14px; font-weight: 600; color: var(--fg-muted);">Pausing Allowed:</span>
+                <label class="switch">
+                    <input type="checkbox" id="pausingAllowedToggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <!-- Controls -->
+            <div class="controls" style="display: flex; gap: 14px; justify-content: center; align-items: center;">
+                <button class="btn-ghost" id="resetFocusBtn" onclick="resetFocusTimer()" style="padding: 11px 24px;">Reset</button>
+                <button class="btn-primary" id="startFocusBtn" onclick="toggleFocusTimer()" style="padding: 11px 32px; font-size: 15px;">Start Session</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <header style="margin-bottom:8px;">
+            <h1>Goal Prep Tracker 📈</h1>
+            <p style="color:var(--fg-muted);">Custom Dashboard: Track your prep across any domain.</p>
+        </header>
+
+        <div class="countdown-banner">
+            <h2><span id="dailyGoal">0</span> / <span id="weeklyGoal">0</span></h2>
+            <p>Daily / Weekly Goals Completed 🔥</p>
+        </div>
+
+        <div class="add-subject-card card">
+            <h3 style="margin:0;font-size:16px;">Add Custom Subject</h3>
+            <div class="input-group" style="display: flex; gap: 8px;">
+                <input type="text" id="newSubjectName" placeholder="e.g. History, Geography" style="flex: 2; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--fg);">
+                <input type="number" id="newSubjectModules" placeholder="Modules" min="1" value="10" style="flex: 1; max-width: 100px; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--fg);">
+                <button class="btn-primary" onclick="addNewSubject()">Add</button>
+            </div>
+        </div>
+
+        <div class="progress-list" id="subjectsContainer">
+            <!-- Subjects will be rendered here dynamically via JS -->
+        </div>
+    </div>
+
+    <!-- Include Global Store -->
+    <script src="../js/store.js"></script>
+    <script>
+        function renderSubjects() {
+            const container = document.getElementById('subjectsContainer');
+            container.innerHTML = '';
+            
+            const subjects = SathiStore.getSubjects();
+            
+            if (subjects.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem 1rem; background: var(--bg-surface); border-radius: 12px; margin-top: 1rem; border: 1px dashed var(--border-strong);">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
+                        <p style="margin-bottom: 1.5rem; color: var(--text-secondary); font-size: 1.1rem; line-height: 1.5;">Koi subject add nahi hai abhi. Apna pehla subject add karo — JEE ho, UPSC ho, ya Engineering — Sathi sab mein help karega!</p>
+                        <button class="btn-primary" onclick="document.getElementById('newSubjectName').focus()" style="padding: 12px 24px; font-size: 16px;">➕ Add Subject</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            subjects.forEach(sub => {
+                const radius = 30;
+                const circumference = 2 * Math.PI * radius;
+                const offset = circumference - (sub.progress / 100) * circumference;
+                
+                const card = document.createElement('div');
+                card.className = 'progress-card card';
+                card.innerHTML = `
+                    <div class="ring-container">
+                        <svg width="70" height="70" viewBox="0 0 70 70">
+                            <circle class="ring-bg" cx="35" cy="35" r="${radius}"></circle>
+                            <circle class="ring-fill" cx="35" cy="35" r="${radius}" 
+                                style="stroke: ${sub.color}; stroke-dasharray: ${circumference}; stroke-dashoffset: ${offset};"></circle>
+                        </svg>
+                        <div class="ring-text">${sub.progress}%</div>
+                    </div>
+                    <div class="subject-info">
+                        <b>${sub.name}</b>
+                        <p>${sub.completed} of ${sub.chapters} modules complete</p>
+                        <div class="update-progress">
+                            <button onclick="updateProgress('${sub.id}', -1)">-</button>
+                            <button onclick="updateProgress('${sub.id}', 1)">+</button>
+                            <button onclick="removeSubject('${sub.id}')" style="margin-left:auto;color:red;border-color:red;">✕</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            
+            // Update Goals Display
+            const goals = SathiStore.getGoals();
+            document.getElementById('dailyGoal').textContent = goals.daily;
+            document.getElementById('weeklyGoal').textContent = goals.weekly;
+        }
+
+        function addNewSubject() {
+            const input = document.getElementById('newSubjectName');
+            const name = input.value.trim();
+            if (!name) return;
+            
+            const moduleInput = document.getElementById('newSubjectModules');
+            let modules = parseInt(moduleInput.value) || 10;
+            if (modules < 1) modules = 1;
+            
+            const colors = ['var(--soft-orange)', 'var(--soft-purple)', '#22C55E', 'var(--soft-blue)'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            SathiStore.addSubject(name, randomColor, modules);
+            input.value = '';
+            moduleInput.value = '10';
+            renderSubjects();
+        }
+
+        function updateProgress(id, change) {
+            const subjects = SathiStore.getSubjects();
+            const subject = subjects.find(s => s.id === id);
+            if (!subject) return;
+            
+            const newCompleted = Math.max(0, Math.min(subject.chapters, subject.completed + change));
+            SathiStore.updateSubjectProgress(id, newCompleted);
+            
+            // If they increased progress, tick a daily goal for gamification
+            if (change > 0) {
+                const goals = SathiStore.getGoals();
+                SathiStore.updateGoals(goals.daily + 1, goals.weekly + 1);
+            }
+            
+            renderSubjects();
+        }
+        
+        function removeSubject(id) {
+            if(confirm("Delete this subject?")) {
+                SathiStore.removeSubject(id);
+                renderSubjects();
+            }
+        }
+
+        // ─── Pomodoro Focus Timer State & Logic ───────────────────────
+        let focusTimeLeft = 25 * 60; // 25 mins in seconds
+        let focusTimerInterval = null;
+        let isFocusRunning = false;
+        let currentMode = 'study'; // 'study', 'short-break', 'long-break'
+        let sessionsCompleted = 0; // out of 4
+
+        function openFocusOverlay() {
+            const overlay = document.getElementById('focusOverlay');
+            overlay.style.display = 'flex';
+            
+            // Populate subject selector
+            const select = document.getElementById('focusSubjectSelect');
+            select.innerHTML = '';
+            
+            const subjects = SathiStore.getSubjects();
+            if (subjects.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = 'General Study';
+                opt.textContent = 'General Study';
+                select.appendChild(opt);
+            } else {
+                subjects.forEach(sub => {
+                    const opt = document.createElement('option');
+                    opt.value = sub.name;
+                    opt.textContent = sub.name;
+                    select.appendChild(opt);
+                });
+            }
+            
+            // If the timer is not running, reset displays to study mode 25m
+            if (!isFocusRunning) {
+                resetFocusTimer();
+            }
+        }
+
+        function closeFocusOverlay() {
+            if (isFocusRunning && currentMode === 'study') {
+                if (!confirm("Focus session abhi chal raha hai, exit karna chahte ho? 🥺 Your progress will be lost.")) {
+                    return;
+                }
+            }
+            // Stop timer
+            pauseFocusTimer();
+            document.getElementById('focusOverlay').style.display = 'none';
+        }
+
+        function playChime() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const playTone = (freq, startTime, duration) => {
+                    const osc = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+                    
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, startTime);
+                    
+                    gainNode.gain.setValueAtTime(0.3, startTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+                    
+                    osc.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                    
+                    osc.start(startTime);
+                    osc.stop(startTime + duration);
+                };
+                
+                const now = audioCtx.currentTime;
+                playTone(523.25, now, 0.8); // C5
+                playTone(659.25, now + 0.15, 0.8); // E5
+                playTone(783.99, now + 0.3, 1.2); // G5
+            } catch (e) {
+                console.error("Audio Context playback failed", e);
+            }
+        }
+
+        function updateTimerRing() {
+            const minutes = Math.floor(focusTimeLeft / 60).toString().padStart(2, '0');
+            const seconds = (focusTimeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('overlayTimerDisplay').textContent = `${minutes}:${seconds}`;
+            
+            let totalTime = 25 * 60;
+            if (currentMode === 'short-break') totalTime = 5 * 60;
+            if (currentMode === 'long-break') totalTime = 15 * 60;
+            
+            const progress = (totalTime - focusTimeLeft) / totalTime;
+            const circumference = 2 * Math.PI * 95; // ~596.9
+            const offset = circumference * progress;
+            document.getElementById('timerRing').style.strokeDashoffset = offset.toString();
+        }
+
+        function toggleFocusTimer() {
+            if (isFocusRunning) {
+                // Check if pausing is allowed
+                const pausingAllowed = document.getElementById('pausingAllowedToggle').checked;
+                if (!pausingAllowed && currentMode === 'study') {
+                    alert("No pausing allowed, focus mode is locked! 🔥");
+                    return;
+                }
+                pauseFocusTimer();
+            } else {
+                startFocusTimer();
+            }
+        }
+
+        function startFocusTimer() {
+            isFocusRunning = true;
+            document.getElementById('startFocusBtn').textContent = "Pause Session";
+            document.getElementById('startFocusBtn').className = "btn-ghost";
+            
+            // Lock selector, show text label
+            const select = document.getElementById('focusSubjectSelect');
+            const display = document.getElementById('focusSubjectNameDisplay');
+            display.textContent = select.value;
+            select.style.display = 'none';
+            display.style.display = 'block';
+            
+            // Hide pause toggle container if pausing is not allowed
+            const pausingAllowed = document.getElementById('pausingAllowedToggle').checked;
+            if (!pausingAllowed && currentMode === 'study') {
+                document.getElementById('pauseToggleContainer').style.opacity = '0.5';
+                document.getElementById('startFocusBtn').textContent = "Focusing...";
+                document.getElementById('startFocusBtn').disabled = true;
+            }
+
+            focusTimerInterval = setInterval(() => {
+                if (focusTimeLeft > 0) {
+                    focusTimeLeft--;
+                    updateTimerRing();
+                } else {
+                    clearInterval(focusTimerInterval);
+                    focusTimerInterval = null;
+                    isFocusRunning = false;
+                    
+                    playChime();
+                    transitionSession();
+                }
+            }, 1000);
+        }
+
+        function pauseFocusTimer() {
+            isFocusRunning = false;
+            clearInterval(focusTimerInterval);
+            focusTimerInterval = null;
+            
+            document.getElementById('startFocusBtn').textContent = "Start Session";
+            document.getElementById('startFocusBtn').className = "btn-primary";
+            document.getElementById('startFocusBtn').disabled = false;
+            document.getElementById('pauseToggleContainer').style.opacity = '1';
+        }
+
+        function resetFocusTimer() {
+            pauseFocusTimer();
+            
+            currentMode = 'study';
+            focusTimeLeft = 25 * 60;
+            sessionsCompleted = 0;
+            
+            document.getElementById('overlayHeader').textContent = "Focus Session 🧠";
+            document.getElementById('overlaySessionCounter').textContent = "Session 1 of 4";
+            document.getElementById('focusMessage').textContent = '"Let\'s focus!"';
+            
+            // Restore select dropdown
+            document.getElementById('focusSubjectSelect').style.display = 'block';
+            document.getElementById('focusSubjectNameDisplay').style.display = 'none';
+            document.getElementById('pausingAllowedToggle').checked = true;
+            document.getElementById('pauseToggleContainer').style.opacity = '1';
+            
+            updateTimerRing();
+        }
+
+        function transitionSession() {
+            document.getElementById('startFocusBtn').textContent = "Start Break";
+            document.getElementById('startFocusBtn').className = "btn-primary";
+            document.getElementById('startFocusBtn').disabled = false;
+            document.getElementById('pauseToggleContainer').style.opacity = '1';
+            
+            if (currentMode === 'study') {
+                sessionsCompleted++;
+                if (sessionsCompleted >= 4) {
+                    currentMode = 'long-break';
+                    focusTimeLeft = 15 * 60;
+                    document.getElementById('overlayHeader').textContent = "Set Complete! 🎉";
+                    document.getElementById('focusMessage').textContent = "Ek ghanta padha! Sathi proud hai! 🎉";
+                    document.getElementById('overlaySessionCounter').textContent = "Rest & Recharge (15 mins)";
+                    sessionsCompleted = 0;
+                } else {
+                    currentMode = 'short-break';
+                    focusTimeLeft = 5 * 60;
+                    document.getElementById('overlayHeader').textContent = "Break Time ☕";
+                    document.getElementById('focusMessage').textContent = "Break lo yaar! Paani piyo 💧";
+                    document.getElementById('overlaySessionCounter').textContent = `Break (Session ${sessionsCompleted} of 4 Complete)`;
+                }
+            } else {
+                currentMode = 'study';
+                focusTimeLeft = 25 * 60;
+                document.getElementById('overlayHeader').textContent = "Focus Session 🧠";
+                document.getElementById('focusMessage').textContent = '"Let\'s focus!"';
+                document.getElementById('overlaySessionCounter').textContent = `Session ${sessionsCompleted + 1} of 4`;
+                
+                document.getElementById('startFocusBtn').textContent = "Start Session";
+                
+                document.getElementById('focusSubjectSelect').style.display = 'block';
+                document.getElementById('focusSubjectNameDisplay').style.display = 'none';
+            }
+            
+            updateTimerRing();
+        }
+
+        // Initial Render
+        renderSubjects();
+    </script>
+    <script src="../js/dark-mode.js"></script>
+<script src="../components/floating-voice.js"></script>
+</body>
+</html>

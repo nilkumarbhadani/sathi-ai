@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Sathi's Notes — Easy Study Notes for any subject and stream.">
+    <title>Sathi's Notes — Universal Study Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/auth.js"></script>
+    <script>SathiAuth.requireAuth();</script>
+    <style>
+        body { padding: 0; }
+
+        .top-bar {
+            padding: 14px 16px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 24px 16px 80px;
+        }
+
+        /* ── Subject tabs ───────────────────────────────── */
+        .subject-tabs-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .subject-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+            flex: 1;
+        }
+
+        .subject-tabs::-webkit-scrollbar { display: none; }
+
+        .tab {
+            flex-shrink: 0;
+            padding: 10px 20px;
+            border-radius: var(--radius-pill);
+            background: var(--surface);
+            border: 2px solid var(--border);
+            cursor: pointer;
+            white-space: nowrap;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.18s;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+        }
+
+        .tab:hover { border-color: var(--accent); color: var(--accent); }
+
+        .tab.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        .tab .ch-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 18px;
+            height: 18px;
+            font-size: 11px;
+            font-weight: 800;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.12);
+            color: inherit;
+            margin-left: 6px;
+            padding: 0 4px;
+        }
+
+        .tab.active .ch-count { background: rgba(255,255,255,0.3); }
+
+        .tab-add {
+            flex-shrink: 0;
+            padding: 10px 18px;
+            border-radius: var(--radius-pill);
+            background: var(--accent);
+            border: 2px solid var(--accent);
+            color: #fff;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.18s;
+            white-space: nowrap;
+            font-family: var(--font-body);
+        }
+
+        .tab-add:hover { background: var(--accent-dark); transform: translateY(-1px); }
+
+        /* ── Tag badge on tab ────────────────────────── */
+        .tab-tag {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            opacity: 0.7;
+            margin-left: 4px;
+        }
+
+        /* ── Context menu ────────────────────────────── */
+        .ctx-menu {
+            position: fixed;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-md);
+            z-index: 500;
+            padding: 6px 0;
+            min-width: 150px;
+            display: none;
+        }
+
+        .ctx-menu button {
+            width: 100%;
+            padding: 10px 16px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: left;
+            color: var(--fg);
+            font-family: var(--font-body);
+            transition: background 0.12s;
+        }
+
+        .ctx-menu button:hover { background: var(--accent-light); }
+
+        .ctx-menu button.danger { color: #EF4444; }
+
+        /* ── Chapter list ─────────────────────────────── */
+        .chapter-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .chapter-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 18px;
+        }
+
+        .chapter-icon {
+            width: 48px;
+            height: 48px;
+            min-width: 48px;
+            border-radius: var(--radius-sm);
+            background: var(--soft-orange);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .chapter-info { flex: 1; min-width: 0; }
+
+        .chapter-info h3 {
+            font-size: 15px;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chapter-info p { font-size: 13px; color: var(--fg-muted); margin: 0; }
+
+        .chapter-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .read-btn, .download-btn, .del-ch-btn {
+            flex-shrink: 0;
+            padding: 9px 16px;
+            border-radius: var(--radius-pill);
+            border: none;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.18s;
+            touch-action: manipulation;
+            white-space: nowrap;
+            font-family: var(--font-body);
+        }
+
+        .read-btn { background: var(--soft-green); color: #166534; }
+        .read-btn:hover { background: #22C55E; color: #fff; }
+
+        .download-btn { background: var(--soft-orange, #FFEDD5); color: #C2410C; }
+        .download-btn:hover { background: #F97316; color: #fff; }
+
+        .del-ch-btn { background: var(--soft-red, #FDECEA); color: #B91C1C; padding: 9px 12px; }
+        .del-ch-btn:hover { background: #EF4444; color: #fff; }
+
+        .add-chapter-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: var(--radius);
+            border: 2px dashed var(--border-strong);
+            background: none;
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.18s;
+            font-family: var(--font-body);
+        }
+
+        .add-chapter-btn:hover { border-color: var(--accent); background: var(--accent-light); }
+
+        /* ── Summary / Notes View ────────────────────── */
+        .notes-view {
+            display: none;
+            animation: slideUp 0.35s ease-out;
+        }
+
+        .summary-box {
+            background: var(--soft-blue);
+            border-radius: var(--radius);
+            padding: clamp(18px, 4vw, 28px);
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .summary-box h2 { margin-bottom: 12px; }
+
+        .summary-box p { font-size: 15px; line-height: 1.7; margin-bottom: 16px; }
+
+        .highlight {
+            background: var(--accent);
+            color: #fff;
+            padding: 1px 7px;
+            border-radius: 5px;
+            font-weight: 700;
+            font-size: 0.92em;
+        }
+
+        .summary-tip {
+            background: var(--surface);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            border-left: 4px solid var(--accent);
+        }
+
+        /* ── Notes Options (Write / AI generate) ─────── */
+        .notes-options {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .notes-option-card {
+            flex: 1;
+            min-width: 200px;
+            padding: 24px 20px;
+            border-radius: var(--radius);
+            border: 2px solid var(--border);
+            background: var(--surface);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.18s;
+        }
+
+        .notes-option-card:hover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+            transform: translateY(-2px);
+        }
+
+        .notes-option-card .opt-emoji { font-size: 36px; margin-bottom: 10px; }
+
+        .notes-option-card h3 { font-size: 15px; margin-bottom: 4px; }
+
+        .notes-option-card p { font-size: 13px; color: var(--fg-muted); margin: 0; }
+
+        /* ── Manual notes textarea ────────────────────── */
+        .manual-notes-editor {
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        .manual-notes-editor textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 16px;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--border);
+            background: var(--surface);
+            color: var(--fg);
+            font-family: var(--font-body);
+            font-size: 15px;
+            line-height: 1.7;
+            resize: vertical;
+        }
+
+        .manual-notes-editor textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(245,130,13,0.15);
+        }
+
+        .editor-toolbar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .editor-toolbar button {
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--fg-muted);
+            font-family: var(--font-body);
+            transition: all 0.12s;
+        }
+
+        .editor-toolbar button:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* ── AI Generating Loader ────────────────────── */
+        .ai-loader {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .ai-loader .dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 16px; }
+
+        /* ── Modal ────────────────────────────────────── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.4);
+            z-index: 600;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-box {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: clamp(24px, 5vw, 36px);
+            width: 100%;
+            max-width: 420px;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .modal-box h2 { margin-bottom: 16px; font-size: 1.4rem; }
+
+        .modal-box label { display: block; font-weight: 600; font-size: 13px; color: var(--fg-muted); margin-bottom: 6px; margin-top: 14px; }
+
+        .modal-box input[type="text"] {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            color: var(--fg);
+            font-size: 15px;
+            font-family: var(--font-body);
+        }
+
+        .modal-box input[type="text"]:focus { outline: none; border-color: var(--accent); }
+
+        .emoji-picker {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+
+        .emoji-pick {
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--border);
+            background: var(--bg);
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.12s;
+        }
+
+        .emoji-pick:hover { border-color: var(--accent); }
+
+        .emoji-pick.selected { border-color: var(--accent); background: var(--accent-light); box-shadow: 0 0 0 2px var(--accent); }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            justify-content: flex-end;
+        }
+
+        /* ── Empty State ──────────────────────────────── */
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .empty-state .big-emoji { font-size: 72px; margin-bottom: 20px; }
+
+        .empty-state p { color: var(--fg-muted); font-size: 16px; max-width: 380px; margin: 0 auto 28px; line-height: 1.6; }
+
+        /* ── Back link within notes ───────────────────── */
+        .back-to-chapters {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 16px;
+            background: none;
+            border: none;
+            font-family: var(--font-body);
+            padding: 0;
+        }
+
+        .back-to-chapters:hover { opacity: 0.75; }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="../index.html" class="back-btn">Back to Hub</a>
+        <button class="dark-mode-toggle" onclick="SathiDarkMode.toggle()" aria-label="Toggle dark mode"><span class="dark-mode-icon">🌙</span></button>
+    </div>
+
+    <div class="container">
+        <header style="margin-bottom:20px;">
+            <h1>Subjects &amp; Notes 📚</h1>
+            <p style="color:var(--fg-muted);">Sathi ke digital notes — simple, clear, exam-ready.</p>
+        </header>
+
+        <!-- Subject tabs + Add button -->
+        <div class="subject-tabs-wrap" id="subjectTabsWrap">
+            <div class="subject-tabs" id="subjectTabs"></div>
+            <button class="tab-add" onclick="openSubjectModal()">➕ Add Subject</button>
+        </div>
+
+        <!-- Empty State (shown when no subjects) -->
+        <div class="empty-state" id="emptyState" style="display:none; text-align: center; padding: 2rem 0;">
+            <div class="big-emoji" style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
+            <p style="font-size: 1.1rem; color: var(--fg-muted); margin-bottom: 1.5rem; line-height: 1.5; max-width: 400px; margin-left: auto; margin-right: auto;">Koi subject add nahi hai abhi. Apna pehla subject add karo — JEE ho, UPSC ho, ya Engineering — Sathi sab mein help karega!</p>
+            <button class="btn-primary" onclick="openSubjectModal()" style="font-size:16px; padding:16px 32px;">➕ Add Subject</button>
+        </div>
+
+        <!-- Chapter View (for active subject) -->
+        <div id="chapterView" style="display:none;">
+            <div class="chapter-list" id="chapterList"></div>
+            <button class="add-chapter-btn" onclick="openChapterModal()">➕ Add Chapter / Topic</button>
+        </div>
+
+        <!-- Notes View (for a specific chapter) -->
+        <div class="notes-view" id="notesView">
+            <button class="back-to-chapters" onclick="closeNotesView()">← Back to Chapters</button>
+            <h2 id="notesChapterTitle" style="margin-bottom: 6px;"></h2>
+            <p id="notesChapterSubtitle" style="color:var(--fg-muted); font-size:13px; margin-bottom:20px;"></p>
+
+            <!-- Options: Write or AI Generate (shown when no notes yet) -->
+            <div class="notes-options" id="notesOptions">
+                <div class="notes-option-card" onclick="showManualEditor()">
+                    <div class="opt-emoji">✍️</div>
+                    <h3>Write My Own Notes</h3>
+                    <p>Apne notes type ya paste karo</p>
+                </div>
+                <div class="notes-option-card" onclick="generateAINotes()">
+                    <div class="opt-emoji">🤖</div>
+                    <h3>Generate with Sathi AI</h3>
+                    <p>AI se instant summary banao</p>
+                </div>
+            </div>
+
+            <!-- Manual Editor -->
+            <div class="manual-notes-editor" id="manualEditor">
+                <div class="editor-toolbar">
+                    <button onclick="insertFormat('**','**')"><b>B</b></button>
+                    <button onclick="insertFormat('• ','')">• List</button>
+                    <button onclick="insertFormat('📌 ','')">📌</button>
+                </div>
+                <textarea id="manualTextarea" placeholder="Apne notes yahan likho..."></textarea>
+                <div style="display:flex; gap:12px; margin-top:12px; justify-content:flex-end;">
+                    <button class="btn-ghost" onclick="cancelManualEdit()">Cancel</button>
+                    <button class="btn-primary" onclick="saveManualNotes()">💾 Save Notes</button>
+                </div>
+            </div>
+
+            <!-- AI Loader -->
+            <div class="ai-loader" id="aiLoader">
+                <div class="dots">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                </div>
+                <p style="color:var(--fg-muted); font-weight:600;">Sathi notes generate kar raha hai... ✨</p>
+            </div>
+
+            <!-- Saved Notes Display -->
+            <div id="savedNotesDisplay" style="display:none;">
+                <div class="summary-box" id="summaryBox">
+                    <h2>Sathi's Quick Summary ✨</h2>
+                    <div id="summaryContent"></div>
+                </div>
+                <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
+                    <button class="btn-ghost" onclick="editSavedNotes()">✏️ Edit Notes</button>
+                    <button class="btn-primary" onclick="downloadCurrentPDF()">📥 PDF Download</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject Modal -->
+    <div class="modal-overlay" id="subjectModal">
+        <div class="modal-box">
+            <h2 id="subjectModalTitle">➕ Add New Subject</h2>
+            <label>Subject Name *</label>
+            <input type="text" id="subjectNameInput" placeholder="e.g. Machine Learning, Indian Polity...">
+            <label>Stream / Goal Tag (optional)</label>
+            <input type="text" id="subjectTagInput" placeholder="e.g. JEE, UPSC, Engineering, Class 12...">
+            <label>Choose Emoji</label>
+            <div class="emoji-picker" id="emojiPicker">
+                <div class="emoji-pick selected" data-emoji="📘" onclick="pickEmoji(this)">📘</div>
+                <div class="emoji-pick" data-emoji="📗" onclick="pickEmoji(this)">📗</div>
+                <div class="emoji-pick" data-emoji="📙" onclick="pickEmoji(this)">📙</div>
+                <div class="emoji-pick" data-emoji="🔬" onclick="pickEmoji(this)">🔬</div>
+                <div class="emoji-pick" data-emoji="🧮" onclick="pickEmoji(this)">🧮</div>
+                <div class="emoji-pick" data-emoji="⚖️" onclick="pickEmoji(this)">⚖️</div>
+                <div class="emoji-pick" data-emoji="💻" onclick="pickEmoji(this)">💻</div>
+                <div class="emoji-pick" data-emoji="🧬" onclick="pickEmoji(this)">🧬</div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-ghost" onclick="closeSubjectModal()">Cancel</button>
+                <button class="btn-primary" id="subjectModalSaveBtn" onclick="saveSubject()">Save Subject</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chapter Modal -->
+    <div class="modal-overlay" id="chapterModal">
+        <div class="modal-box">
+            <h2>➕ Add Chapter / Topic</h2>
+            <label>Chapter Title *</label>
+            <input type="text" id="chapterTitleInput" placeholder="e.g. Neural Networks Basics">
+            <label>Subtitle / Description (optional)</label>
+            <input type="text" id="chapterSubtitleInput" placeholder="e.g. Week 3 Notes, Unit 2">
+            <div class="modal-actions">
+                <button class="btn-ghost" onclick="closeChapterModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveChapter()">Save Chapter</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu (for tab right-click / long press) -->
+    <div class="ctx-menu" id="ctxMenu">
+        <button onclick="editSubjectFromCtx()">✏️ Edit Subject</button>
+        <button class="danger" onclick="deleteSubjectFromCtx()">🗑️ Delete Subject</button>
+    </div>
+
+    <script>
+        /* ───────────────────────────────────────────────────
+         *  STORAGE MANAGER
+         * ─────────────────────────────────────────────────── */
+        const STORAGE_KEY = 'sathi_notes_subjects';
+
+        function loadSubjects() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            } catch { return []; }
+        }
+
+        function saveSubjects(arr) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+        }
+
+        function genId(prefix) {
+            return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        }
+
+        /* ───────────────────────────────────────────────────
+         *  APP STATE
+         * ─────────────────────────────────────────────────── */
+        let subjects = loadSubjects();
+        let activeSubjectId = null;
+        let activeChapterId = null;
+        let editingSubjectId = null; // for edit mode
+        let ctxSubjectId = null;     // for context menu
+
+        /* ───────────────────────────────────────────────────
+         *  SUBJECT TAB RENDERING
+         * ─────────────────────────────────────────────────── */
+        function renderTabs() {
+            const container = document.getElementById('subjectTabs');
+            container.innerHTML = '';
+
+            if (subjects.length === 0) {
+                document.getElementById('emptyState').style.display = '';
+                document.getElementById('chapterView').style.display = 'none';
+                document.getElementById('notesView').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('emptyState').style.display = 'none';
+
+            subjects.forEach(sub => {
+                const tab = document.createElement('div');
+                tab.className = 'tab' + (sub.id === activeSubjectId ? ' active' : '');
+                const chCount = (sub.chapters || []).length;
+                tab.innerHTML = `${sub.emoji} ${sub.name}${sub.tag ? ' <span class="tab-tag">• ' + sub.tag + '</span>' : ''}${chCount > 0 ? '<span class="ch-count">' + chCount + '</span>' : ''}`;
+                tab.onclick = () => selectSubject(sub.id);
+
+                // Right-click / long-press for edit/delete
+                tab.oncontextmenu = (e) => { e.preventDefault(); showCtxMenu(e, sub.id); };
+
+                let longPressTimer;
+                tab.ontouchstart = (e) => {
+                    longPressTimer = setTimeout(() => {
+                        e.preventDefault();
+                        showCtxMenu(e.touches[0], sub.id);
+                    }, 600);
+                };
+                tab.ontouchend = () => clearTimeout(longPressTimer);
+                tab.ontouchcancel = () => clearTimeout(longPressTimer);
+
+                container.appendChild(tab);
+            });
+
+            // Show chapter view if a subject is selected
+            if (activeSubjectId) {
+                renderChapters();
+            }
+        }
+
+        function selectSubject(id) {
+            activeSubjectId = id;
+            activeChapterId = null;
+            document.getElementById('notesView').style.display = 'none';
+            renderTabs();
+        }
+
+        /* ───────────────────────────────────────────────────
+         *  CHAPTER RENDERING
+         * ─────────────────────────────────────────────────── */
+        function renderChapters() {
+            const sub = subjects.find(s => s.id === activeSubjectId);
+            if (!sub) {
+                document.getElementById('chapterView').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('chapterView').style.display = '';
+            const list = document.getElementById('chapterList');
+            list.innerHTML = '';
+
+            if (!sub.chapters || sub.chapters.length === 0) {
+                list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--fg-muted); font-weight:600;">Abhi koi chapter nahi hai. Neeche button se add karo! 👇</div>';
+                return;
+            }
+
+            sub.chapters.forEach((ch, idx) => {
+                const card = document.createElement('div');
+                card.className = 'chapter-card card';
+                card.innerHTML = `
+                    <div class="chapter-icon">${sub.emoji}</div>
+                    <div class="chapter-info">
+                        <h3>${ch.title}</h3>
+                        <p>${ch.subtitle || ''}${ch.notes ? ' • 📝 Notes saved' : ''}</p>
+                    </div>
+                    <div class="chapter-actions">
+                        <button class="read-btn" onclick="openNotes('${ch.id}')">Summary ${ch.notes ? '✓' : ''}</button>
+                        ${ch.notes ? `<button class="download-btn" onclick="downloadPDFFor('${ch.id}')">📥 PDF</button>` : ''}
+                        <button class="del-ch-btn" onclick="deleteChapter('${ch.id}')" title="Delete chapter">🗑️</button>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        /* ───────────────────────────────────────────────────
+         *  SUBJECT MODAL
+         * ─────────────────────────────────────────────────── */
+        let selectedEmoji = '📘';
+
+        function openSubjectModal(editId) {
+            editingSubjectId = editId || null;
+            const modal = document.getElementById('subjectModal');
+            modal.style.display = 'flex';
+
+            if (editId) {
+                const sub = subjects.find(s => s.id === editId);
+                if (sub) {
+                    document.getElementById('subjectNameInput').value = sub.name;
+                    document.getElementById('subjectTagInput').value = sub.tag || '';
+                    selectedEmoji = sub.emoji;
+                    document.getElementById('subjectModalTitle').textContent = '✏️ Edit Subject';
+                    document.getElementById('subjectModalSaveBtn').textContent = 'Update Subject';
+                }
+            } else {
+                document.getElementById('subjectNameInput').value = '';
+                document.getElementById('subjectTagInput').value = '';
+                selectedEmoji = '📘';
+                document.getElementById('subjectModalTitle').textContent = '➕ Add New Subject';
+                document.getElementById('subjectModalSaveBtn').textContent = 'Save Subject';
+            }
+
+            // Highlight selected emoji
+            document.querySelectorAll('.emoji-pick').forEach(e => {
+                e.classList.toggle('selected', e.dataset.emoji === selectedEmoji);
+            });
+        }
+
+        function closeSubjectModal() {
+            document.getElementById('subjectModal').style.display = 'none';
+            editingSubjectId = null;
+        }
+
+        function pickEmoji(el) {
+            selectedEmoji = el.dataset.emoji;
+            document.querySelectorAll('.emoji-pick').forEach(e => e.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function saveSubject() {
+            const name = document.getElementById('subjectNameInput').value.trim();
+            if (!name) { alert('Subject name dena zaroori hai bhai! 😅'); return; }
+
+            const tag = document.getElementById('subjectTagInput').value.trim();
+
+            if (editingSubjectId) {
+                const sub = subjects.find(s => s.id === editingSubjectId);
+                if (sub) {
+                    sub.name = name;
+                    sub.tag = tag;
+                    sub.emoji = selectedEmoji;
+                }
+            } else {
+                subjects.push({
+                    id: genId('subj'),
+                    name: name,
+                    emoji: selectedEmoji,
+                    tag: tag,
+                    chapters: []
+                });
+                // Auto-select the new subject
+                activeSubjectId = subjects[subjects.length - 1].id;
+            }
+
+            saveSubjects(subjects);
+            closeSubjectModal();
+            renderTabs();
+        }
+
+        /* ───────────────────────────────────────────────────
+         *  CONTEXT MENU (Edit / Delete Subject)
+         * ─────────────────────────────────────────────────── */
+        function showCtxMenu(event, subjectId) {
+            ctxSubjectId = subjectId;
+            const menu = document.getElementById('ctxMenu');
+            menu.style.display = 'block';
+            menu.style.left = (event.clientX || event.pageX) + 'px';
+            menu.style.top = (event.clientY || event.pageY) + 'px';
+        }
+
+        function hideCtxMenu() { document.getElementById('ctxMenu').style.display = 'none'; ctxSubjectId = null; }
+
+        document.addEventListener('click', hideCtxMenu);
+
+        function editSubjectFromCtx() {
+            if (ctxSubjectId) openSubjectModal(ctxSubjectId);
+            hideCtxMenu();
+        }
+
+        function deleteSubjectFromCtx() {
+            if (!ctxSubjectId) return;
+            const sub = subjects.find(s => s.id === ctxSubjectId);
+            if (sub && confirm(`"${sub.name}" subject delete karna hai? Saare chapters aur notes bhi jayenge! 🗑️`)) {
+                subjects = subjects.filter(s => s.id !== ctxSubjectId);
+                if (activeSubjectId === ctxSubjectId) {
+                    activeSubjectId = subjects.length > 0 ? subjects[0].id : null;
+                }
+                saveSubjects(subjects);
+                renderTabs();
+            }
+            hideCtxMenu();
+        }
+
+        /* ───────────────────────────────────────────────────
+         *  CHAPTER MODAL
+         * ─────────────────────────────────────────────────── */
+        function openChapterModal() {
+            document.getElementById('chapterTitleInput').value = '';
+            document.getElementById('chapterSubtitleInput').value = '';
+            document.getElementById('chapterModal').style.display = 'flex';
+        }
+
+        function closeChapterModal() {
+            document.getElementById('chapterModal').style.display = 'none';
+        }
+
+        function saveChapter() {
+            const title = document.getElementById('chapterTitleInput').value.trim();
+            if (!title) { alert('Chapter title toh dedo bhai! 😄'); return; }
+
+            const subtitle = document.getElementById('chapterSubtitleInput').value.trim();
+            const sub = subjects.find(s => s.id === activeSubjectId);
+            if (!sub) return;
+
+            if (!sub.chapters) sub.chapters = [];
+            sub.chapters.push({
+                id: genId('ch'),
+                title: title,
+                subtitle: subtitle,
+                notes: '',
+                notesType: '',
+                createdAt: new Date().toISOString()
+            });
+
+            saveSubjects(subjects);
+            closeChapterModal();
+            renderTabs();
+        }
+
+        function deleteChapter(chId) {
+            const sub = subjects.find(s => s.id === activeSubjectId);
+            if (!sub) return;
+            const ch = sub.chapters.find(c => c.id === chId);
+            if (ch && confirm(`"${ch.title}" delete karna hai? Notes bhi jayenge!`)) {
+                sub.chapters = sub.chapters.filter(c => c.id !== chId);
+                saveSubjects(subjects);
+                renderTabs();
+            }
+        }
+
+        /* ───────────────────────────────────────────────────
+         *  NOTES VIEW
+         * ─────────────────────────────────────────────────── */
+        function openNotes(chId) {
+            activeChapterId = chId;
+            const sub = subjects.find(s => s.id === activeSubjectId);
+            const ch = sub ? sub.chapters.find(c => c.id === chId) : null;
+            if (!ch) return;
+
+            document.getElementById('chapterView').style.display = 'none';
+            document.getElementById('notesView').style.display = '';
+            document.getElementById('notesChapterTitle').textContent = ch.title;
+            document.getElementById('notesChapterSubtitle').textContent = ch.subtitle || (sub.name + (sub.tag ? ' • ' + sub.tag : ''));
+
+            // Reset all inner views
+            document.getElementById('notesOptions').style.display = 'none';
+            document.getElementById('manualEditor').style.display = 'none';
+            document.getElementById('aiLoader').style.display = 'none';
+            document.getElementById('savedNotesDisplay').style.display = 'none';
+
+            if (ch.notes) {
+                showSavedNotes(ch);
+            } else {
+                document.getElementById('notesOptions').style.display = 'flex';
+            }
+        }
+
+        function closeNotesView() {
+            activeChapterId = null;
+            document.getElementById('notesView').style.display = 'none';
+            document.getElementById('chapterView').style.display = '';
+            renderChapters();
+        }
+
+        function showSavedNotes(ch) {
+            document.getElementById('notesOptions').style.display = 'none';
+            document.getElementById('manualEditor').style.display = 'none';
+            document.getElementById('aiLoader').style.display = 'none';
+            document.getElementById('savedNotesDisplay').style.display = '';
+
+            const content = document.getElementById('summaryContent');
+            // Render notes — parse markdown-like bold and bullets
+            const rendered = ch.notes
+                .replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>')
+                .replace(/^• (.*)$/gm, '• $1')
+                .replace(/^📌 (.*)$/gm, '<div class="summary-tip" style="margin-bottom:12px;">📌 $1</div>')
+                .replace(/^💡 (.*)$/gm, '<div class="summary-tip" style="margin-bottom:12px;">💡 $1</div>')
+                .replace(/^🔑 (.*)$/gm, '<div class="summary-tip" style="margin-bottom:12px;">🔑 $1</div>')
+                .replace(/\n/g, '<br>');
+            content.innerHTML = `<p style="font-size:15px; line-height:1.7;">${rendered}</p>`;
+        }
+
+        /* ── Manual Notes ────────────────────────────── */
+        function showManualEditor() {
+            document.getElementById('notesOptions').style.display = 'none';
+            document.getElementById('manualEditor').style.display = '';
+
+            const sub = subjects.find(s => s.id === activeSubjectId);
+            const ch = sub ? sub.chapters.find(c => c.id === activeChapterId) : null;
+            document.getElementById('manualTextarea').value = ch && ch.notes ? ch.notes : '';
+        }
+
+        function cancelManualEdit() {
+            const sub = subjects.find(s => s.id === activeSubjectId);
+            const ch = sub ? sub.chapters.find(c => c.id === activeChapterId) : null;
+            document.getElementById('manualEditor').style.display = 'none';
+            if (ch && ch.notes) {
+                showSavedNotes(ch);
+            } else {
+                document.getElementById('notesOptions').style.display = 'flex';
+            }
+        }
+
+        function saveManualNotes() {
+            const text = document.getElementById('manualTextarea').value.trim();
+            if (!text) { alert('Kuch toh likho bhai! 😅'); return; }
+
+            const sub = subjects.find(s => s.id === activeSubjectId);
+            const ch = sub ? sub.chapters.find(c => c.id === activeChapterId) : null;
+            if (!ch) return;
+
+            ch.notes = text;
+            ch.notesType = 'manual';
+            saveSubjects(subjects);
+            document.getElementById('manualEditor').style.display = 'none';
+            showSavedNotes(ch);
+        }
+
+        function editSavedNotes() {
+            showManualEditor();
+        }
+
+        function insertFormat(before, after) {
+            const ta = document.getElementById('manualTextarea');
+            const start = ta.selectionStart;
+            const end = ta.selectionEnd;
+            const selected = ta.value.substring(start, end);
+            ta.value = ta.value.substring(0, start) + before + selected + after + ta.value.substring(end);
+            ta.focus();
+            ta.selectionStart = start + before.length;
+            ta.selectionEnd = start + before.length + selected.length;
+        }
+
+        /* ── AI Notes Generation ─────────────────────── */
+        async function generateAINotes() {
+            const sub = subjects.find(s => s.id === activeSubjectId);
+            const ch = sub ? sub.chapters.find(c => c.id === activeChapterId) : null;
+            if (!ch) return;
+
+            document.getElementById('notesOptions').style.display = 'none';
+            document.getElementById('aiLoader').style.display = '';
+
+            const prompt = `You are Sathi AI. Generate concise study notes in Hinglish for topic: "${ch.title}" under subject "${sub.name}". Format your response as:
+
+📌 Key Concepts: (3-4 points, each on new line with bullet •)
+🔑 Important Terms: (comma separated keywords, wrap each in **bold**)
+💡 Exam Tip: (1 important tip for students)
+
+Keep tone friendly and student-focused. Use simple language.`;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: prompt, history: [] })
+                });
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+
+                ch.notes = data.response || '';
+                ch.notesType = 'ai';
+                saveSubjects(subjects);
+
+                document.getElementById('aiLoader').style.display = 'none';
+                showSavedNotes(ch);
+            } catch (err) {
+                console.error('AI Generation failed:', err);
+                document.getElementById('aiLoader').style.display = 'none';
+                document.getElementById('notesOptions').style.display = 'flex';
+                alert('AI notes generate nahi ho paye 😥 Server check karo ya manually likho!');
+            }
+        }
+
+        /* ───────────────────────────────────────────────────
+         *  PDF DOWNLOAD (Dynamic)
+         * ─────────────────────────────────────────────────── */
+        function downloadCurrentPDF() {
+            if (!activeChapterId) return;
+            downloadPDFFor(activeChapterId);
+        }
+
+        function downloadPDFFor(chId) {
+            const sub = subjects.find(s => s.id === activeSubjectId);
+            const ch = sub ? sub.chapters.find(c => c.id === chId) : null;
+            if (!ch || !ch.notes) { alert('Pehle notes save karo bhai!'); return; }
+
+            if (typeof window.jspdf === 'undefined') {
+                alert('PDF library abhi load ho rahi hai, 2 second baad try karo!');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const plainNotes = ch.notes
+                .replace(/\*\*(.*?)\*\*/g, '$1')
+                .replace(/<[^>]*>/g, '');
+
+            let y = 20;
+            const margin = 20;
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const maxW = pageWidth - margin * 2;
+
+            // Subject + Chapter Title
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(18);
+            doc.setTextColor(249, 115, 22); // Orange
+            doc.text(sub.name + (sub.tag ? ' (' + sub.tag + ')' : ''), margin, y);
+            y += 10;
+
+            doc.setTextColor(0);
+            doc.setFontSize(14);
+            const splitTitle = doc.splitTextToSize(ch.title, maxW);
+            doc.text(splitTitle, margin, y);
+            y += splitTitle.length * 7 + 8;
+
+            if (ch.subtitle) {
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(11);
+                doc.setTextColor(100);
+                doc.text(ch.subtitle, margin, y);
+                y += 8;
+                doc.setTextColor(0);
+            }
+
+            // Separator line
+            doc.setDrawColor(200);
+            doc.line(margin, y, pageWidth - margin, y);
+            y += 10;
+
+            // Notes content
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(12);
+            const lines = doc.splitTextToSize(plainNotes, maxW);
+            lines.forEach(line => {
+                if (y > doc.internal.pageSize.getHeight() - 30) {
+                    doc.addPage();
+                    y = 20;
+                }
+                doc.text(line, margin, y);
+                y += 6;
+            });
+
+            // Footer
+            doc.setFont("helvetica", "italic");
+            doc.setFontSize(10);
+            doc.setTextColor(120);
+            const footer = "© Sathi AI — Padhai ab burden nahi!";
+            const fw = doc.getTextWidth(footer);
+            doc.text(footer, (pageWidth - fw) / 2, doc.internal.pageSize.getHeight() - 12);
+
+            // Filename
+            const safeSub = sub.name.replace(/[^a-zA-Z0-9]/g, '_');
+            const safeCh = ch.title.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30);
+            doc.save(`SathiAI_${safeSub}_${safeCh}.pdf`);
+        }
+
+        /* ───────────────────────────────────────────────────
+         *  INIT
+         * ─────────────────────────────────────────────────── */
+        window.addEventListener('DOMContentLoaded', () => {
+            subjects = loadSubjects();
+            if (subjects.length > 0 && !activeSubjectId) {
+                activeSubjectId = subjects[0].id;
+            }
+            renderTabs();
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="../js/dark-mode.js"></script>
+    <script src="../components/floating-voice.js"></script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Focus Mode — Sathi AI</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/auth.js"></script>
+    <script>
+        // Protect this route
+        SathiAuth.requireAuth();
+    </script>
+    <style>
+        body {
+            background-color: var(--bg);
+            color: var(--fg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            font-family: var(--font-primary);
+        }
+
+        .focus-container {
+            text-align: center;
+            z-index: 10;
+        }
+
+        .timer-display {
+            font-size: 8rem;
+            font-weight: 800;
+            font-family: var(--font-display);
+            color: var(--accent);
+            margin: 20px 0;
+            text-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .motivational-msg {
+            font-size: 1.2rem;
+            color: var(--fg-muted);
+            min-height: 40px;
+            max-width: 400px;
+            margin: 0 auto 30px auto;
+            line-height: 1.4;
+        }
+
+        .controls {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .btn-focus {
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .btn-start {
+            background-color: var(--accent);
+            color: white;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-start:hover { transform: scale(1.05); }
+
+        .btn-exit {
+            background-color: transparent;
+            color: var(--fg-muted);
+            border: 2px solid var(--border);
+        }
+        
+        .btn-exit:hover { background-color: var(--surface); color: var(--fg); }
+
+        /* Minimalist background elements to remove distractions */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(139, 92, 246, 0.1) 0%, transparent 60%);
+            z-index: 1;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <button class="dark-mode-toggle" onclick="SathiDarkMode.toggle()" aria-label="Toggle dark mode" style="position:fixed; top:16px; right:16px; z-index:100;"><span class="dark-mode-icon">🌙</span></button>
+    <div class="overlay"></div>
+    <div class="focus-container">
+        <h1 style="margin:0; font-size: 2rem;">Deep Work Mode 🧠</h1>
+        <div class="timer-display" id="timer">30:00</div>
+        <div class="motivational-msg" id="message">"Set a 30-minute target and let's get it done!"</div>
+        
+        <div class="controls">
+            <button class="btn-focus btn-exit" onclick="exitFocus()" id="exitBtn">Exit Focus</button>
+            <button class="btn-focus btn-start" onclick="toggleTimer()" id="startBtn">Start Session</button>
+        </div>
+    </div>
+
+    <script src="../js/store.js"></script>
+    <script>
+        let timeLeft = 30 * 60; // 30 mins
+        let timerInterval;
+        let isRunning = false;
+
+        const startMessages = [
+            "Time to shine! Eliminate distractions.",
+            "You got this! Focus like a laser beam.",
+            "30 minutes of pure dedication starts now."
+        ];
+
+        const endMessages = [
+            "Amazing deep work session! You leveled up. 🚀",
+            "Target achieved! Take a 5-minute break.",
+            "Incredible focus! Sathi is proud of you. 👏"
+        ];
+
+        function playBell() {
+            // Using Web Audio API to synthesize a bell ring
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 note
+            oscillator.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 1.5);
+
+            gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.5);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 1.5);
+        }
+
+        function updateDisplay() {
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timer').textContent = `${m}:${s}`;
+        }
+
+        function toggleTimer() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                document.getElementById('startBtn').textContent = "Resume";
+                isRunning = false;
+            } else {
+                isRunning = true;
+                document.getElementById('startBtn').textContent = "Pause";
+                
+                // Show motivation on start
+                if(timeLeft === 30 * 60) {
+                    const msg = startMessages[Math.floor(Math.random() * startMessages.length)];
+                    document.getElementById('message').textContent = msg;
+                }
+
+                timerInterval = setInterval(() => {
+                    if (timeLeft > 0) {
+                        timeLeft--;
+                        updateDisplay();
+                    } else {
+                        clearInterval(timerInterval);
+                        isRunning = false;
+                        playBell();
+                        const endMsg = endMessages[Math.floor(Math.random() * endMessages.length)];
+                        document.getElementById('message').textContent = endMsg;
+                        document.getElementById('startBtn').textContent = "Restart";
+                        document.getElementById('startBtn').style.display = 'none';
+                        document.getElementById('exitBtn').textContent = "Back to Dashboard";
+                        
+                        // Increase weekly goal by 1 on completion
+                        const goals = SathiStore.getGoals();
+                        SathiStore.updateGoals(goals.daily, goals.weekly + 1);
+                    }
+                }, 1000);
+            }
+        }
+
+        function exitFocus() {
+            if (isRunning && timeLeft > 0 && timeLeft < (30*60)) {
+                if(!confirm("Are you sure you want to abandon your session?")) return;
+            }
+            window.location.href = "progress.html";
+        }
+
+        // Initialize display
+        updateDisplay();
+    </script>
+    <script src="../js/dark-mode.js"></script>
+</body>
+</html>

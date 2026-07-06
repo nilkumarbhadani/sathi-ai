@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Setup your Sathi AI profile — tell us about yourself and your subjects.">
+    <title>Setup Your Sathi — Onboarding</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+        }
+
+        /* ── Top bar ─────────────────────────────────────────────── */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ── Content ─────────────────────────────────────────────── */
+        .page-body {
+            flex: 1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 24px 16px 60px;
+        }
+
+        .onboarding-container {
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* ── Steps ───────────────────────────────────────────────── */
+        .step { display: none; }
+        .step.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out both;
+        }
+
+        .step-emoji { font-size: 48px; margin-bottom: 16px; display: block; }
+
+        /* ── Input ───────────────────────────────────────────────── */
+        .input-group {
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        /* ── Subjects grid ───────────────────────────────────────── */
+        .subject-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .subject-opt {
+            padding: 15px 12px;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--border);
+            cursor: pointer;
+            transition: all 0.18s;
+            font-weight: 600;
+            font-size: 15px;
+            background: var(--surface);
+            color: var(--fg);
+            text-align: center;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .subject-opt.selected {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        /* ── Progress dots ───────────────────────────────────────── */
+        .progress-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 32px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: var(--accent);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        /* ── Final card ──────────────────────────────────────────── */
+        .sathi-quote {
+            background: var(--soft-orange);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            text-align: left;
+            margin: 24px 0;
+            border-left: 4px solid var(--accent);
+        }
+
+        .sathi-quote p { font-size: 15px; font-style: italic; margin-bottom: 6px; }
+        .sathi-quote small { color: var(--fg-muted); font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="../index.html" class="back-btn">Back to Hub</a>
+        <button class="dark-mode-toggle" onclick="SathiDarkMode.toggle()" aria-label="Toggle dark mode"><span class="dark-mode-icon">🌙</span></button>
+    </div>
+
+    <div class="page-body">
+        <div class="onboarding-container card">
+
+            <!-- Step 1: Name + Class -->
+            <div class="step active" id="step1">
+                <span class="step-emoji">👋</span>
+                <h2>Chalo, shuru karte hain!</h2>
+                <p style="color:var(--fg-muted);">Tell Sathi a bit about yourself.</p>
+
+                <div class="input-group">
+                    <label for="nameInput">Tumhara Naam?</label>
+                    <input type="text" id="nameInput" placeholder="e.g. Rahul" autocomplete="given-name">
+                </div>
+                <div class="input-group">
+                    <label for="classSelect">Kaunsi Class ya Stream mein ho?</label>
+                    <select id="classSelect">
+                        <option value="school">School (Any Board)</option>
+                        <option value="college">College / University</option>
+                        <option value="professional">Professional / Skilling</option>
+                    </select>
+                </div>
+                <button class="btn-primary" style="width:100%;margin-top:8px;" onclick="nextStep(2)">Aage Badho →</button>
+            </div>
+
+            <!-- Step 2: Subjects -->
+            <div class="step" id="step2">
+                <span class="step-emoji">📚</span>
+                <h2>Subjects Chuno</h2>
+                <p style="color:var(--fg-muted);">Kaunse subjects mein Sathi ki help chahiye?</p>
+                <div class="subject-grid">
+                    <div class="subject-opt" onclick="toggleSub(this)">🏛️ Humanities & Arts</div>
+                    <div class="subject-opt" onclick="toggleSub(this)">⚛️ Science & Tech</div>
+                    <div class="subject-opt" onclick="toggleSub(this)">💼 Commerce & Business</div>
+                    <div class="subject-opt" onclick="toggleSub(this)">🚀 Skill Development</div>
+                </div>
+                <div class="input-group" style="display:flex; gap:8px;">
+                    <input type="text" id="customSubInput" placeholder="Add custom subject (e.g., AI)" style="flex:1; padding:10px; border-radius:8px; border:1px solid var(--border);">
+                    <button class="btn-primary" style="padding:10px 16px;" onclick="addCustomSubject()">Add</button>
+                </div>
+                <button class="btn-primary" style="width:100%;margin-top:8px;" onclick="nextStep(3)">Done! ✓</button>
+            </div>
+
+            <!-- Step 3: Ready -->
+            <div class="step" id="step3">
+                <span class="step-emoji">🎉</span>
+                <h2 id="finalHeading">Sab Set Hai!</h2>
+                <p style="color:var(--fg-muted);">Ab hum milke padhai karenge. Sathi is ready to help you win.</p>
+                <div class="sathi-quote">
+                    <p id="finalQuote">"Bhai/Behen, tension mat lo. Ab main hoon na, milke goals achieve karenge! 🔥"</p>
+                    <small>— Sathi AI</small>
+                </div>
+                <a href="chat.html" class="btn-primary" style="display:flex;justify-content:center;text-decoration:none;">
+                    Let's Talk to Sathi 💬
+                </a>
+            </div>
+
+            <!-- Progress dots -->
+            <div class="progress-dots">
+                <div class="dot active" id="dot1"></div>
+                <div class="dot" id="dot2"></div>
+                <div class="dot" id="dot3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Global Store -->
+    <script src="../js/store.js"></script>
+    <script>
+        const selectedSubjects = [];
+
+        function nextStep(step) {
+            // Personalise step 3 with entered name
+            if (step === 3) {
+                const name = document.getElementById('nameInput').value.trim();
+                if (name) {
+                    document.getElementById('finalHeading').textContent = `${name}, Sab Set Hai! 🎉`;
+                    document.getElementById('finalQuote').textContent =
+                        `"${name}, tension mat lo. Ab main hoon na, milke goals achieve karenge! 🔥"`;
+                }
+                
+                // Save subjects to store if any were added
+                if (selectedSubjects.length > 0) {
+                    // Reset default subjects
+                    localStorage.removeItem('sathi_subjects');
+                    SathiStore.init(); 
+                    const currentStore = SathiStore.getSubjects();
+                    currentStore.length = 0; // Clear default
+                    
+                    const colors = ['var(--soft-orange)', 'var(--soft-purple)', '#22C55E', 'var(--soft-blue)'];
+                    
+                    selectedSubjects.forEach((subName, i) => {
+                        currentStore.push({
+                            id: 'sub_ob_' + i,
+                            name: subName,
+                            color: colors[i % colors.length],
+                            progress: 0,
+                            chapters: 10,
+                            completed: 0
+                        });
+                    });
+                    SathiStore.saveSubjects(currentStore);
+                }
+            }
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById('step' + step).classList.add('active');
+            document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+            document.getElementById('dot' + step).classList.add('active');
+        }
+
+        function toggleSub(el) {
+            el.classList.toggle('selected');
+            const subName = el.textContent.replace(/[^\w\s]/gi, '').trim(); // Remove emojis
+            
+            if (el.classList.contains('selected')) {
+                if (!selectedSubjects.includes(subName)) selectedSubjects.push(subName);
+            } else {
+                const index = selectedSubjects.indexOf(subName);
+                if (index > -1) selectedSubjects.splice(index, 1);
+            }
+        }
+        
+        function addCustomSubject() {
+            const input = document.getElementById('customSubInput');
+            const subName = input.value.trim();
+            if(!subName) return;
+            
+            // Create a new pill
+            const grid = document.querySelector('.subject-grid');
+            const newOpt = document.createElement('div');
+            newOpt.className = 'subject-opt selected';
+            newOpt.textContent = '✨ ' + subName;
+            newOpt.onclick = function() { toggleSub(this); };
+            grid.appendChild(newOpt);
+            
+            selectedSubjects.push(subName);
+            input.value = '';
+        }
+    </script>
+    <script src="../js/dark-mode.js"></script>
+</body>
+</html>

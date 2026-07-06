@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Daily Motivation — Sathi AI. Sabhi students ke liye daily dose of positivity.">
+    <title>Daily Motivation — Sathi AI</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/auth.js"></script>
+    <script>
+        // Protect this route
+        SathiAuth.requireAuth();
+    </script>
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+        }
+
+        .top-bar {
+            padding: 14px 16px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .page-body {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+        }
+
+        /* ── Card ────────────────────────────────────────────────── */
+        .motivation-card {
+            max-width: 540px;
+            width: 100%;
+            text-align: center;
+            padding: clamp(28px, 6vw, 52px) clamp(20px, 5vw, 40px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Background decoration */
+        .emoji-burst {
+            position: absolute;
+            font-size: 120px;
+            opacity: 0.05;
+            top: -24px;
+            right: -24px;
+            pointer-events: none;
+            line-height: 1;
+        }
+
+        /* ── Badge ───────────────────────────────────────────────── */
+        .vibe-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 5px 14px;
+            border-radius: var(--radius-pill);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ── Quote ───────────────────────────────────────────────── */
+        .quote {
+            font-family: var(--font-display);
+            font-size: clamp(1.2rem, 4vw, 1.7rem);
+            font-weight: 700;
+            line-height: 1.3;
+            color: var(--fg);
+            margin-bottom: 12px;
+            transition: opacity 0.3s;
+        }
+
+        .quote-author {
+            color: var(--fg-muted);
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+
+        /* ── BFF note ────────────────────────────────────────────── */
+        .bff-note {
+            background: var(--soft-purple);
+            padding: 18px 20px;
+            border-radius: var(--radius);
+            text-align: left;
+            margin-bottom: 28px;
+            border: 2px dashed var(--accent);
+            transform: rotate(-0.8deg);
+            transition: opacity 0.3s;
+        }
+
+        .bff-note h4 {
+            font-family: var(--font-accent);
+            margin: 0 0 8px 0;
+            font-size: 15px;
+        }
+
+        .bff-note p { margin: 0; font-size: 15px; line-height: 1.5; }
+
+        /* ── Buttons ─────────────────────────────────────────────── */
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Vibe animation */
+        .animate-out { opacity: 0; transform: translateY(-8px); transition: opacity 0.2s, transform 0.2s; }
+        .animate-in  { opacity: 1; transform: translateY(0); transition: opacity 0.3s 0.1s, transform 0.3s 0.1s; }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="../index.html" class="back-btn">Back to Hub</a>
+        <button class="dark-mode-toggle" onclick="SathiDarkMode.toggle()" aria-label="Toggle dark mode"><span class="dark-mode-icon">🌙</span></button>
+    </div>
+
+    <div class="page-body">
+        <div class="motivation-card card">
+            <div class="emoji-burst">🌟</div>
+
+            <div class="vibe-badge">Dost ki advice ✨</div>
+
+            <div class="quote" id="quoteText">
+                "Success is not final, failure is not fatal: it is the courage to continue that counts."
+            </div>
+            <p class="quote-author" id="quoteAuthor">— Winston Churchill (par Sathi bhi yahi kehta hai!)</p>
+
+            <div class="bff-note">
+                <h4>📝 Sathi's Personal Note</h4>
+                <p id="bffMessage">"Bhai, mujhe pata hai aaj padhai karne ka mann nahi kar raha hoga. Par thoda sa hi sahi, ek topic khatam kar le. Tu SHER hai! 🦁"</p>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn-ghost" onclick="newVibe()">New Vibe ✨</button>
+                <a href="chat.html" class="btn-primary">Study Mode 📚</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const vibes = [
+            {
+                quote: '"Mehnat itni khamoshi se karo ki kamyabi shor macha de."',
+                author: '— Unknown (par bilkul sach hai!)',
+                bff: '"Kal ke result aaj ki mehnat pe depend karte hain. Chal, ek aur topic khatam karte hain! 💪"'
+            },
+            {
+                quote: '"Kal ke liye sabse acchi taiyari aaj apna best dena hai."',
+                author: '— Sathi AI 😄',
+                bff: '"Aaj 10 minute meditation karle, dimaag ekdum fresh ho jayega. Phir milke padhenge! 🧘‍♂️"'
+            },
+            {
+                quote: '"Don\'t stop when you are tired. Stop when you are done!"',
+                author: '— Inspirational',
+                bff: '"History boring lag rahi hai? Chal chat pe aa, main kahani sunata hoon. 📜"'
+            },
+            {
+                quote: '"Exams are just a test of preparation, not your life\'s worth. Smart karo!"',
+                author: '— Sathi AI',
+                bff: '"Coffee peeyega? Ek break le le, phir milke shuru karte hain. ☕"'
+            },
+            {
+                quote: '"Yaar, tu bohot talented hai. Bas thoda focus chahiye."',
+                author: '— Sathi (apna dost)',
+                bff: '"Ek success story sunao apni — remember jab tune kuch achieve kiya tha? Wahi energy laao aaj! 🌟"'
+            }
+        ];
+
+        let vibeIdx = 0;
+
+        function newVibe() {
+            vibeIdx = (vibeIdx + 1) % vibes.length;
+            const v = vibes[vibeIdx];
+
+            const quote   = document.getElementById('quoteText');
+            const author  = document.getElementById('quoteAuthor');
+            const bff     = document.getElementById('bffMessage');
+
+            // Animate out
+            quote.classList.add('animate-out');
+            bff.parentElement.classList.add('animate-out');
+
+            setTimeout(() => {
+                quote.textContent  = v.quote;
+                author.textContent = v.author;
+                bff.textContent    = v.bff;
+
+                quote.classList.remove('animate-out');
+                quote.classList.add('animate-in');
+                bff.parentElement.classList.remove('animate-out');
+                bff.parentElement.classList.add('animate-in');
+
+                setTimeout(() => {
+                    quote.classList.remove('animate-in');
+                    bff.parentElement.classList.remove('animate-in');
+                }, 400);
+            }, 220);
+        }
+    </script>
+<script src="../js/dark-mode.js"></script>
+<script src="../components/floating-voice.js"></script>
+</body>
+</html>

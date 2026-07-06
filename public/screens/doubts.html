@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Doubt Solving — Sathi AI. Koi bhi sawaal pucho, turant jawab pao.">
+    <title>Doubt Solving — Sathi AI</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/auth.js"></script>
+    <script>
+        // Protect this route
+        SathiAuth.requireAuth();
+    </script>
+    <style>
+        body { padding: 0; }
+
+        .top-bar {
+            padding: 14px 16px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 24px 16px 80px;
+        }
+
+        /* ── Ask area ────────────────────────────────────────────── */
+        .ask-card { padding: clamp(18px, 4vw, 28px); margin-bottom: 24px; }
+
+        .ask-card h2 { margin-bottom: 6px; }
+
+        .ask-card p { color: var(--fg-muted); font-size: 15px; margin-bottom: 20px; }
+
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            max-height: 200px;
+            padding: 16px;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--border);
+            background: var(--bg);
+            font-family: var(--font-body);
+            font-size: 15px;
+            color: var(--fg);
+            resize: none;
+            box-sizing: border-box;
+            margin-bottom: 14px;
+            transition: border-color 0.18s;
+            -webkit-appearance: none;
+        }
+
+        textarea:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(245,130,13,0.15);
+        }
+
+        /* ── Result ──────────────────────────────────────────────── */
+        .doubt-result {
+            display: none;
+            animation: slideUp 0.4s ease-out;
+            margin-bottom: 24px;
+        }
+
+        .result-card {
+            background: var(--soft-orange);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            border-radius: var(--radius);
+        }
+
+        .result-card h3 { margin-bottom: 12px; }
+
+        .result-card p { font-size: 15px; line-height: 1.65; margin-bottom: 16px; }
+
+        .result-card ul {
+            padding-left: 18px;
+            margin: 0;
+        }
+
+        .result-card li {
+            font-size: 14px;
+            margin-bottom: 6px;
+            line-height: 1.5;
+        }
+
+        /* ── Recent doubts ───────────────────────────────────────── */
+        .recent-section h3 { margin-bottom: 14px; }
+
+        .doubt-item {
+            cursor: pointer;
+            transition: transform 0.18s;
+            margin-bottom: 12px;
+        }
+
+        .doubt-item:hover { transform: translateX(4px); }
+
+        .doubt-item h4 { font-size: 15px; color: var(--accent); margin-bottom: 4px; }
+        .doubt-item p  { font-size: 13px; color: var(--fg-muted); margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="../index.html" class="back-btn">Back to Hub</a>
+        <button class="dark-mode-toggle" onclick="SathiDarkMode.toggle()" aria-label="Toggle dark mode"><span class="dark-mode-icon">🌙</span></button>
+    </div>
+
+    <div class="container">
+        <header style="margin-bottom:20px;">
+            <h1>Doubt Solving ❓</h1>
+            <p style="color:var(--fg-muted);">Mann mein koi sawaal hai? Bina jhijhak pucho!</p>
+        </header>
+
+        <!-- Ask area -->
+        <div class="ask-card card">
+            <h2>Apna Doubt Pucho</h2>
+            <p>Koi bhi topic — History, Pol. Science, Sociology, Geography.</p>
+            <textarea
+                id="doubtInput"
+                placeholder="e.g. 'What is the importance of the Preamble?' ya 'Harappan script kaise dekhi jati thi?'"
+                aria-label="Type your doubt here"
+            ></textarea>
+            <button class="btn-primary" onclick="solveDoubt()" id="solveBtn" style="width:100%;">
+                Solve it, Sathi! 🚀
+            </button>
+        </div>
+
+        <!-- Result (hidden initially) -->
+        <div class="doubt-result" id="doubtResult">
+            <div class="result-card">
+                <h3>Sathi's Explanation 💡</h3>
+                <p id="explanationText">
+                    "Bhai, tumne pucha 'Importance of Preamble'. Dekho, Preamble hamare Constitution ka ek 'Identity Card' hai. Ye batata hai ki hamare desh ke basic ideals kya hain — Justice, Liberty, Equality aur Fraternity. Agar ye nahi hota toh Constitution ki spirit samajhna bohot mushkil hota."
+                </p>
+                <strong>Important Points:</strong>
+                <ul id="pointsList">
+                    <li>Identity Card of Constitution</li>
+                    <li>Based on Objectives Resolution (by Nehru ji)</li>
+                    <li>Sovereign, Socialist, Secular, Democratic, Republic</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Recent doubts -->
+        <div class="recent-section">
+            <h3>Recent Doubts by Students 🌏</h3>
+            <div class="doubt-item card" onclick="fillDoubt(this)">
+                <h4>Cold War ka India pe impact kya tha?</h4>
+                <p>Explained by Sathi • 2 mins ago</p>
+            </div>
+            <div class="doubt-item card" onclick="fillDoubt(this)">
+                <h4>Green Revolution ke pros and cons?</h4>
+                <p>Explained by Sathi • 15 mins ago</p>
+            </div>
+            <div class="doubt-item card" onclick="fillDoubt(this)">
+                <h4>Preamble of Constitution ke main features?</h4>
+                <p>Explained by Sathi • 32 mins ago</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function solveDoubt() {
+            const input = document.getElementById('doubtInput').value.trim();
+            if (!input) {
+                document.getElementById('doubtInput').focus();
+                return;
+            }
+            const btn = document.getElementById('solveBtn');
+            btn.textContent = 'Sathi soch raha hai... 🤔';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                const res = document.getElementById('doubtResult');
+                res.style.display = 'block';
+                res.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                btn.textContent = 'Solve it, Sathi! 🚀';
+                btn.disabled = false;
+            }, 1000);
+        }
+
+        function fillDoubt(el) {
+            const question = el.querySelector('h4').textContent;
+            document.getElementById('doubtInput').value = question;
+            document.getElementById('doubtInput').focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+    <script src="../js/dark-mode.js"></script>
+</body>
+</html>
