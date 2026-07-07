@@ -9,7 +9,7 @@ require('dotenv').config();
 // Import the orchestrator and specialist agents
 const { classifyIntent } = require('./agents/orchestrator');
 const { explainConcept } = require('./agents/tutorAgent');
-const { generateQuiz } = require('./agents/quizAgent');
+const { generateQuiz, generateFlashcards } = require('./agents/quizAgent');
 const { suggestPlan } = require('./agents/plannerAgent');
 
 const app = express();
@@ -141,10 +141,13 @@ app.post('/api/agent', async (req, res) => {
             case 'quiz':
                 console.log('🤖 Orchestrator routed to: QuizAgent');
                 handledBy = 'QuizAgent';
-                // Extract a reasonable subject/topic from the user's message.
-                // The quiz agent will use the raw message as the topic context.
-                agentResponse = await generateQuiz('General', message);
-                break;
+                // Return a friendly message with the topic extracted from user's message.
+                // The frontend will render an interactive quiz button.
+                agentResponse = '🎯 **Quiz Time!**\n\nAre wah, quiz dena chahte ho! Bahut achhi baat hai! 💪\n\nNeeche button click karo aur quiz shuru karo!';
+                // Attach the user's message as quizTopic so the frontend can
+                // pre-fill the quiz page with it.
+                res.json({ response: agentResponse, handledBy: handledBy, quizTopic: message });
+                return; // Early return — response already sent
 
             case 'planner':
                 console.log('🤖 Orchestrator routed to: PlannerAgent');
@@ -169,7 +172,60 @@ app.post('/api/agent', async (req, res) => {
     }
 });
 
-// 4. Sync Progress Endpoint for MCP Server
+// 4. Dedicated Quiz Generation Endpoint
+// Used by the redesigned quiz.html to generate quizzes on any topic.
+app.post('/api/quiz', async (req, res) => {
+    try {
+        const { topic, difficulty, numQuestions } = req.body;
+
+        if (!topic || typeof topic !== 'string' || !topic.trim()) {
+            return res.status(400).json({ error: 'Topic is required.' });
+        }
+
+        const safeDifficulty = ['Easy', 'Medium', 'Hard'].includes(difficulty) ? difficulty : 'Medium';
+        const safeCount = [5, 10, 15, 20].includes(numQuestions) ? numQuestions : 5;
+
+        console.log(`📝 Quiz API: topic="${topic}", difficulty=${safeDifficulty}, count=${safeCount}`);
+
+        const result = await generateQuiz(topic.trim(), safeDifficulty, safeCount);
+
+        if (result.error) {
+            return res.status(500).json({ error: result.message });
+        }
+
+        res.json(result);
+    } catch (error) {
+        console.error('Quiz Generation Error:', error.message || error);
+        res.status(500).json({ error: 'Unable to generate quiz right now. Please try again.' });
+    }
+});
+
+// 5. Flashcard Generation Endpoint
+// Used by quiz.html flashcard mode to generate AI-powered flashcards.
+app.post('/api/flashcards', async (req, res) => {
+    try {
+        const { topic } = req.body;
+
+        if (!topic || typeof topic !== 'string' || !topic.trim()) {
+            return res.status(400).json({ error: 'Topic is required.' });
+        }
+
+        console.log(`🎴 Flashcard API: topic="${topic}"`);
+
+        const result = await generateFlashcards(topic.trim());
+
+        if (result.error) {
+            return res.status(500).json({ error: result.message });
+        }
+
+        res.json(result);
+    } catch (error) {
+        console.error('Flashcard Generation Error:', error.message || error);
+        res.status(500).json({ error: 'Unable to generate flashcards right now. Please try again.' });
+    }
+});
+
+// 6. Sync Progress Endpoint for MCP Server
 app.post('/api/sync-progress', async (req, res) => {
     try {
         const { subjectsData } = req.body;

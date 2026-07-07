@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="Quiz & Practice — Test your knowledge with Sathi AI.">
+    <meta name="description" content="AI Quiz Generator & Flashcards — Test your knowledge with Sathi AI.">
     <title>Quiz &amp; Practice — Sathi AI</title>
     <link rel="stylesheet" href="../css/style.css">
     <script src="../js/auth.js"></script>
     <script>
-        // Protect this route
         SathiAuth.requireAuth();
     </script>
     <style>
@@ -18,6 +17,9 @@
             padding: 14px 16px;
             background: var(--surface);
             border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .container {
@@ -26,143 +28,144 @@
             padding: 20px 16px 80px;
         }
 
-        /* ── Subject filter ──────────────────────────────────────── */
-        .subject-filter {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 4px;
-            margin-bottom: 24px;
+        /* ── Setup Phase ─────────────────────── */
+        .setup-card { padding: clamp(24px, 4vw, 40px); }
+
+        .topic-input {
+            width: 100%;
+            padding: 16px 20px;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--border);
+            font-family: var(--font-body);
+            font-size: 16px;
+            background: var(--bg);
+            color: var(--fg);
+            transition: border-color 0.18s, box-shadow 0.18s;
+            -webkit-appearance: none;
+            box-sizing: border-box;
+        }
+        .topic-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(245, 130, 13, 0.15);
         }
 
-        .filter-chip {
-            flex-shrink: 0;
-            padding: 8px 18px;
+        .setup-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--fg-muted);
+            margin-bottom: 10px;
+            display: block;
+        }
+        .setup-section { margin-top: 20px; }
+
+        .pill-group { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .pill {
+            padding: 10px 20px;
             border-radius: var(--radius-pill);
-            background: var(--surface);
             border: 2px solid var(--border);
+            background: var(--surface);
             font-weight: 600;
             font-size: 14px;
             cursor: pointer;
             transition: all 0.18s;
-            touch-action: manipulation;
-        }
-
-        .filter-chip.active {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: #fff;
-        }
-
-        /* ── Question card ───────────────────────────────────────── */
-        .question-card { padding: clamp(20px, 4vw, 36px); }
-
-        .q-meta {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .q-counter { font-size: 14px; color: var(--fg-muted); font-weight: 600; }
-
-        .score-chip {
-            background: var(--soft-green);
-            color: #166534;
-            padding: 4px 12px;
-            border-radius: var(--radius-pill);
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        #qText {
-            font-size: clamp(16px, 3vw, 20px);
-            font-weight: 700;
-            margin-bottom: 24px;
-            line-height: 1.4;
-        }
-
-        /* ── Options ─────────────────────────────────────────────── */
-        .options-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 24px;
-        }
-
-        .option {
-            padding: 15px 20px;
-            border-radius: var(--radius-sm);
-            border: 2px solid var(--border);
-            cursor: pointer;
-            transition: all 0.18s;
-            font-weight: 600;
-            font-size: 15px;
-            background: var(--surface);
-            color: var(--fg);
+            font-family: var(--font-body);
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
         }
+        .pill:hover { border-color: var(--accent); background: var(--accent-light); }
+        .pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
+        .generate-btn { width: 100%; margin-top: 28px; padding: 16px 24px; font-size: 16px; }
+        .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+        .quick-topics { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .quick-chip {
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.18s;
+            font-family: var(--font-body);
+        }
+        .quick-chip:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+
+        /* ── Loading State ────────────────────── */
+        .loading-state { display: none; text-align: center; padding: 60px 20px; }
+        .loading-spinner {
+            width: 48px; height: 48px;
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Error State ──────────────────────── */
+        .error-state { display: none; text-align: center; padding: 40px 20px; }
+        .error-state .error-icon { font-size: 48px; margin-bottom: 16px; }
+
+        /* ── Quiz Phase ──────────────────────── */
+        .quiz-phase { display: none; }
+
+        .progress-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .progress-text { font-size: 13px; font-weight: 600; color: var(--fg-muted); }
+        .progress-bar-wrap { width: 100%; height: 8px; background: var(--border); border-radius: var(--radius-pill); overflow: hidden; margin-bottom: 20px; }
+        .progress-bar-fill { height: 100%; background: var(--accent); border-radius: var(--radius-pill); transition: width 0.4s ease; }
+
+        .question-card { padding: clamp(20px, 4vw, 36px); }
+        .q-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .q-counter { font-size: 14px; color: var(--fg-muted); font-weight: 600; }
+        .score-chip { background: var(--soft-green); color: #166534; padding: 4px 12px; border-radius: var(--radius-pill); font-size: 13px; font-weight: 700; }
+
+        #qText { font-size: clamp(16px, 3vw, 20px); font-weight: 700; margin-bottom: 24px; line-height: 1.4; }
+
+        .options-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+        .option {
+            padding: 15px 20px; border-radius: var(--radius-sm);
+            border: 2px solid var(--border); cursor: pointer;
+            transition: all 0.18s; font-weight: 600; font-size: 15px;
+            background: var(--surface); color: var(--fg);
+            touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+        }
         .option:hover { border-color: var(--accent); background: var(--accent-light); }
-
         .option.selected { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
-
         .option.correct  { background: var(--soft-green); border-color: #22C55E; color: #15803D; }
-
         .option.wrong    { background: var(--soft-red);   border-color: #EF4444; color: #B91C1C; }
 
-        /* ── Feedback ────────────────────────────────────────────── */
-        .feedback {
-            padding: 16px;
-            border-radius: var(--radius-sm);
-            display: none;
-            animation: slideUp 0.35s ease-out;
-            margin-bottom: 20px;
-            font-size: 15px;
-            line-height: 1.5;
-        }
-
+        .feedback { padding: 16px; border-radius: var(--radius-sm); display: none; animation: slideUp 0.35s ease-out; margin-bottom: 20px; font-size: 15px; line-height: 1.5; }
         .feedback.correct { background: var(--soft-green); border-left: 4px solid #22C55E; }
         .feedback.wrong   { background: var(--soft-red);   border-left: 4px solid #EF4444; }
 
-        /* ── Bottom row ──────────────────────────────────────────── */
-        .quiz-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
+        .quiz-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 
-        /* ── Tip ─────────────────────────────────────────────────── */
-        .tip-card {
-            margin-top: 24px;
-            background: var(--soft-green);
-            border: none;
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
-            padding: 18px;
-        }
+        /* ── Results Phase ────────────────────── */
+        .results-phase { display: none; }
+        .results-card { text-align: center; padding: clamp(24px, 5vw, 48px); }
+        .result-score { font-size: 3rem; font-weight: 800; color: var(--accent); margin: 12px 0; }
+        .result-accuracy { font-size: 1.2rem; color: var(--fg-muted); font-weight: 600; margin-bottom: 24px; }
 
-        .tip-card .tip-icon { font-size: 28px; flex-shrink: 0; }
+        .analytics-section { text-align: left; margin-top: 24px; }
+        .analytics-section h3 { font-size: 16px; margin-bottom: 12px; }
+        .analytics-item { padding: 12px 16px; background: var(--bg); border-radius: var(--radius-sm); margin-bottom: 8px; font-size: 14px; line-height: 1.5; }
+        .analytics-item.strength  { border-left: 3px solid #22C55E; }
+        .analytics-item.weakness  { border-left: 3px solid #EF4444; }
+        .analytics-item.revision  { border-left: 3px solid var(--accent); }
 
-        .tip-card p { font-size: 14px; margin: 0; }
+        .results-actions { display: flex; gap: 12px; justify-content: center; margin-top: 28px; flex-wrap: wrap; }
 
         /* ── Mode Toggle Button ───────────────────────────────────── */
         .mode-toggle-bar {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-end;
             gap: 12px;
-            flex-wrap: wrap;
             margin-bottom: 24px;
-        }
-
-        .mode-toggle-bar .subject-filter {
-            margin-bottom: 0;
-            flex: 1;
         }
 
         .btn-mode-toggle {
@@ -179,16 +182,8 @@
             white-space: nowrap;
             font-family: var(--font-body);
         }
-
-        .btn-mode-toggle:hover {
-            opacity: 0.85;
-            transform: translateY(-1px);
-        }
-
-        .btn-mode-toggle.flashcard-active {
-            background: var(--accent);
-            color: #fff;
-        }
+        .btn-mode-toggle:hover { opacity: 0.85; transform: translateY(-1px); }
+        .btn-mode-toggle.flashcard-active { background: var(--accent); color: #fff; }
 
         /* ── Flashcard Container ─────────────────────────────────── */
         #flashcardContainer {
@@ -198,170 +193,43 @@
             gap: 24px;
         }
 
-        /* Progress bar */
-        .fc-progress-bar-wrap {
-            width: 100%;
-            background: var(--border);
-            border-radius: var(--radius-pill);
-            height: 8px;
-            overflow: hidden;
-        }
-
-        .fc-progress-bar-fill {
-            height: 100%;
-            background: var(--accent);
-            border-radius: var(--radius-pill);
-            transition: width 0.4s ease;
-        }
-
-        .fc-progress-label {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--fg-muted);
-            text-align: center;
-            margin-top: 4px;
-        }
+        .fc-progress-bar-wrap { width: 100%; background: var(--border); border-radius: var(--radius-pill); height: 8px; overflow: hidden; }
+        .fc-progress-bar-fill { height: 100%; background: var(--accent); border-radius: var(--radius-pill); transition: width 0.4s ease; }
+        .fc-progress-label { font-size: 13px; font-weight: 700; color: var(--fg-muted); text-align: center; margin-top: 4px; }
 
         /* 3D Flip Card */
-        .fc-perspective {
-            width: 100%;
-            perspective: 1000px;
-        }
-
-        .fc-card {
-            width: 100%;
-            min-height: 220px;
-            position: relative;
-            cursor: pointer;
-            transform-style: preserve-3d;
-            transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .fc-card.flipped {
-            transform: rotateY(180deg);
-        }
-
+        .fc-perspective { width: 100%; perspective: 1000px; }
+        .fc-card { width: 100%; min-height: 220px; position: relative; cursor: pointer; transform-style: preserve-3d; transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1); }
+        .fc-card.flipped { transform: rotateY(180deg); }
         .fc-face {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%;
-            min-height: 220px;
-            border-radius: var(--radius);
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 32px 28px;
-            box-sizing: border-box;
-            text-align: center;
+            position: absolute; top: 0; left: 0; width: 100%; min-height: 220px;
+            border-radius: var(--radius); backface-visibility: hidden; -webkit-backface-visibility: hidden;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 32px 28px; box-sizing: border-box; text-align: center;
         }
+        .fc-face-front { background: var(--surface); border: 2px solid var(--border); }
+        .fc-face-back { background: var(--accent-light, #FEF0DC); border: 2px solid var(--accent); transform: rotateY(180deg); }
+        .fc-term { font-size: clamp(18px, 4vw, 24px); font-weight: 800; color: var(--fg); line-height: 1.35; margin-bottom: 12px; }
+        .fc-hint { font-size: 12px; color: var(--fg-muted); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+        .fc-explanation { font-size: 15px; color: var(--fg); line-height: 1.6; font-weight: 500; }
+        .fc-subject-tag { position: absolute; top: 14px; right: 16px; font-size: 11px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
 
-        .fc-face-front {
-            background: var(--surface);
-            border: 2px solid var(--border);
-        }
+        .fc-recall-btns { display: flex; gap: 14px; width: 100%; justify-content: center; }
+        .btn-dobara { flex: 1; max-width: 200px; padding: 14px 20px; border-radius: var(--radius-sm); border: 2px solid #EF4444; background: var(--soft-red, #FEF2F2); color: #B91C1C; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.18s; font-family: var(--font-body); }
+        .btn-dobara:hover { background: #FEE2E2; transform: translateY(-2px); }
+        .btn-yaad { flex: 1; max-width: 200px; padding: 14px 20px; border-radius: var(--radius-sm); border: 2px solid #22C55E; background: var(--soft-green, #F0FDF4); color: #15803D; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.18s; font-family: var(--font-body); }
+        .btn-yaad:hover { background: #DCFCE7; transform: translateY(-2px); }
 
-        .fc-face-back {
-            background: var(--accent-light, #FEF0DC);
-            border: 2px solid var(--accent);
-            transform: rotateY(180deg);
-        }
+        .fc-complete { text-align: center; padding: 20px 0; animation: slideUp 0.35s ease-out; }
+        .fc-complete .big-emoji { font-size: 64px; margin-bottom: 16px; }
 
-        .fc-term {
-            font-size: clamp(18px, 4vw, 24px);
-            font-weight: 800;
-            color: var(--fg);
-            line-height: 1.35;
-            margin-bottom: 12px;
-        }
-
-        .fc-hint {
-            font-size: 12px;
-            color: var(--fg-muted);
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-
-        .fc-explanation {
-            font-size: 15px;
-            color: var(--fg);
-            line-height: 1.6;
-            font-weight: 500;
-        }
-
-        .fc-subject-tag {
-            position: absolute;
-            top: 14px;
-            right: 16px;
-            font-size: 11px;
-            font-weight: 800;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-        }
-
-        /* Recall buttons */
-        .fc-recall-btns {
-            display: flex;
-            gap: 14px;
-            width: 100%;
-            justify-content: center;
-        }
-
-        .btn-dobara {
-            flex: 1;
-            max-width: 200px;
-            padding: 14px 20px;
-            border-radius: var(--radius-sm);
-            border: 2px solid #EF4444;
-            background: var(--soft-red, #FEF2F2);
-            color: #B91C1C;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.18s;
-            font-family: var(--font-body);
-        }
-
-        .btn-dobara:hover {
-            background: #FEE2E2;
-            transform: translateY(-2px);
-        }
-
-        .btn-yaad {
-            flex: 1;
-            max-width: 200px;
-            padding: 14px 20px;
-            border-radius: var(--radius-sm);
-            border: 2px solid #22C55E;
-            background: var(--soft-green, #F0FDF4);
-            color: #15803D;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.18s;
-            font-family: var(--font-body);
-        }
-
-        .btn-yaad:hover {
-            background: #DCFCE7;
-            transform: translateY(-2px);
-        }
-
-        /* Flashcard complete screen */
-        .fc-complete {
-            text-align: center;
-            padding: 20px 0;
-            animation: slideUp 0.35s ease-out;
-        }
-
-        .fc-complete .big-emoji {
-            font-size: 64px;
-            margin-bottom: 16px;
-        }
+        /* ── Quiz History ─────────────────────── */
+        .history-section { margin-top: 32px; }
+        .history-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 8px; transition: all 0.18s; }
+        .history-item:hover { border-color: var(--accent); }
+        .history-topic { font-weight: 700; font-size: 14px; }
+        .history-meta { font-size: 12px; color: var(--fg-muted); }
+        .history-score-badge { font-weight: 700; font-size: 14px; color: var(--accent); }
     </style>
 </head>
 <body>
@@ -371,540 +239,695 @@
     </div>
 
     <div class="container">
-        <header style="margin-bottom:20px;">
-            <h1>Quiz Time! 🎯</h1>
-            <p style="color:var(--fg-muted);">Dekhte hain kitna yaad hai. No pressure, dost!</p>
-        </header>
+        <!-- ═══ PHASE 1: Setup ═══ -->
+        <div id="setupPhase">
+            <header style="margin-bottom:20px;">
+                <h1>AI Quiz Generator 🎯</h1>
+                <p style="color:var(--fg-muted);">Koi bhi topic dalo, Gemini tumhare liye quiz banayega. No limits!</p>
+            </header>
 
-        <!-- Subject filter + Mode Toggle -->
-        <div class="mode-toggle-bar">
-            <div class="subject-filter">
-                <div class="filter-chip active" onclick="setFilter(this,'History')">🏛️ History</div>
-                <div class="filter-chip" onclick="setFilter(this,'Pol. Science')">⚖️ Pol. Science</div>
-                <div class="filter-chip" onclick="setFilter(this,'Sociology')">🤝 Sociology</div>
-                <div class="filter-chip" onclick="setFilter(this,'Geography')">🌍 Geography</div>
+            <!-- Mode Toggle -->
+            <div class="mode-toggle-bar">
+                <button id="modeToggleBtn" class="btn-mode-toggle" onclick="toggleStudyMode()">🎴 Flashcard Mode</button>
             </div>
-            <button id="modeToggleBtn" class="btn-mode-toggle" onclick="toggleStudyMode()">🎴 Flashcard Mode</button>
+
+            <div class="setup-card card" id="quizSetupCard">
+                <label class="setup-label">What do you want to be quizzed on?</label>
+                <input type="text" class="topic-input" id="topicInput" placeholder="e.g., Python, Newton's Laws, Indian Constitution, Machine Learning..." autofocus>
+                <div class="quick-topics">
+                    <span class="quick-chip" onclick="setQuickTopic('Python Basics')">🐍 Python</span>
+                    <span class="quick-chip" onclick="setQuickTopic('Newton\\'s Laws of Motion')">🍎 Newton's Laws</span>
+                    <span class="quick-chip" onclick="setQuickTopic('Indian Constitution')">📜 Constitution</span>
+                    <span class="quick-chip" onclick="setQuickTopic('Machine Learning Fundamentals')">🤖 ML</span>
+                    <span class="quick-chip" onclick="setQuickTopic('Photosynthesis')">🌿 Photosynthesis</span>
+                    <span class="quick-chip" onclick="setQuickTopic('UPSC Economy')">📊 Economy</span>
+                    <span class="quick-chip" onclick="setQuickTopic('Data Structures')">🏗️ DSA</span>
+                    <span class="quick-chip" onclick="setQuickTopic('World War 2')">🌍 WW2</span>
+                </div>
+
+                <div class="setup-section">
+                    <label class="setup-label">Difficulty Level</label>
+                    <div class="pill-group" id="difficultyGroup">
+                        <button class="pill" onclick="setDifficulty(this, 'Easy')">😊 Easy</button>
+                        <button class="pill active" onclick="setDifficulty(this, 'Medium')">🧠 Medium</button>
+                        <button class="pill" onclick="setDifficulty(this, 'Hard')">🔥 Hard</button>
+                    </div>
+                </div>
+
+                <div class="setup-section">
+                    <label class="setup-label">Number of Questions</label>
+                    <div class="pill-group" id="countGroup">
+                        <button class="pill active" onclick="setCount(this, 5)">5</button>
+                        <button class="pill" onclick="setCount(this, 10)">10</button>
+                        <button class="pill" onclick="setCount(this, 15)">15</button>
+                        <button class="pill" onclick="setCount(this, 20)">20</button>
+                    </div>
+                </div>
+
+                <button class="btn-primary generate-btn" id="generateBtn" onclick="startQuiz()">Generate Quiz 🚀</button>
+            </div>
+
+            <!-- Flashcard Setup (hidden by default, shown in flashcard mode) -->
+            <div class="setup-card card" id="flashcardSetupCard" style="display:none;">
+                <label class="setup-label">Flashcard Topic</label>
+                <input type="text" class="topic-input" id="flashcardTopicInput" placeholder="e.g., Plate Tectonics, JavaScript Closures, Mughal Empire...">
+                <div class="quick-topics">
+                    <span class="quick-chip" onclick="document.getElementById('flashcardTopicInput').value='Plate Tectonics'">⛰️ Plate Tectonics</span>
+                    <span class="quick-chip" onclick="document.getElementById('flashcardTopicInput').value='JavaScript Closures'">🔧 JS Closures</span>
+                    <span class="quick-chip" onclick="document.getElementById('flashcardTopicInput').value='Mughal Empire'">🏰 Mughal Empire</span>
+                    <span class="quick-chip" onclick="document.getElementById('flashcardTopicInput').value='Organic Chemistry'">🧪 Chemistry</span>
+                </div>
+                <button class="btn-primary generate-btn" id="flashcardGenBtn" onclick="startFlashcardDeck()" style="margin-top:20px;">Start Flashcards 🎴</button>
+            </div>
+
+            <!-- Quiz History -->
+            <div class="history-section" id="historySection" style="display:none;">
+                <h3>Previous Quizzes 📚</h3>
+                <div id="historyList"></div>
+            </div>
         </div>
 
-        <!-- Flashcard Container (hidden by default) -->
+        <!-- ═══ LOADING STATE ═══ -->
+        <div class="loading-state" id="loadingState">
+            <div class="loading-spinner"></div>
+            <h2 id="loadingTitle">Generating Quiz...</h2>
+            <p style="color:var(--fg-muted);" id="loadingMsg">Gemini is crafting unique questions for you! ✨</p>
+        </div>
+
+        <!-- ═══ ERROR STATE ═══ -->
+        <div class="error-state" id="errorState">
+            <div class="error-icon">😔</div>
+            <h2>Oops!</h2>
+            <p style="color:var(--fg-muted);" id="errorMsg">Unable to generate quiz right now. Please try again.</p>
+            <button class="btn-primary" onclick="showSetup()" style="margin-top:20px;">Try Again 🔄</button>
+        </div>
+
+        <!-- ═══ PHASE 2: Quiz ═══ -->
+        <div class="quiz-phase" id="quizPhase">
+            <div class="progress-header">
+                <span class="progress-text" id="progressText">Question 1 of 5</span>
+                <span class="score-chip" id="scoreDisplay">Score: 0</span>
+            </div>
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" id="progressFill" style="width:0%;"></div>
+            </div>
+            <div class="question-card card">
+                <div class="q-meta">
+                    <span class="tag" id="qTag">Topic</span>
+                    <span class="q-counter" id="qDifficulty">Medium</span>
+                </div>
+                <div id="qText">Loading question...</div>
+                <div class="options-grid" id="optionsGrid"></div>
+                <div class="feedback" id="feedback">
+                    <strong id="feedbackTitle"></strong>
+                    <p id="feedbackText" style="margin:6px 0 0;"></p>
+                </div>
+                <div class="quiz-footer">
+                    <button class="btn-ghost" id="checkBtn" onclick="checkAnswer()">Check Answer ✓</button>
+                    <button class="btn-primary" id="nextBtn" onclick="nextQuestion()" style="display:none;">Next Question →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ PHASE 3: Results ═══ -->
+        <div class="results-phase" id="resultsPhase">
+            <div class="results-card card">
+                <div style="font-size:64px;margin-bottom:16px;" id="resultEmoji">🏆</div>
+                <h2>Quiz Complete!</h2>
+                <div class="result-score" id="resultScore">0/0</div>
+                <div class="result-accuracy" id="resultAccuracy">0% Accuracy</div>
+                <p style="color:var(--fg-muted); font-weight:600;" id="resultMessage"></p>
+                <div class="analytics-section" id="analyticsSection"></div>
+                <div class="results-actions">
+                    <button class="btn-ghost" onclick="retryQuiz()">Retry Same Topic 🔄</button>
+                    <button class="btn-primary" onclick="showSetup()">New Quiz 🎯</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ Flashcard Container ═══ -->
         <div id="flashcardContainer">
-            <!-- Progress -->
             <div style="width:100%;">
                 <div class="fc-progress-bar-wrap">
                     <div class="fc-progress-bar-fill" id="fcProgressFill" style="width:0%;"></div>
                 </div>
                 <div class="fc-progress-label" id="fcProgressLabel">Card 1 of 10</div>
             </div>
-
-            <!-- 3D Flip Card -->
             <div class="fc-perspective">
                 <div class="fc-card" id="fcCard" onclick="flipCard()">
                     <div class="fc-face fc-face-front">
-                        <span class="fc-subject-tag" id="fcTagFront">History • Ch.1</span>
+                        <span class="fc-subject-tag" id="fcTagFront">Topic</span>
                         <div class="fc-term" id="fcTermFront">Loading...</div>
                         <div class="fc-hint">👆 Tap to flip</div>
                     </div>
                     <div class="fc-face fc-face-back">
-                        <span class="fc-subject-tag" id="fcTagBack">History • Ch.1</span>
+                        <span class="fc-subject-tag" id="fcTagBack">Topic</span>
                         <div class="fc-explanation" id="fcExplanationBack">Explanation...</div>
                         <div class="fc-hint" style="margin-top:12px;">👆 Tap to flip back</div>
                     </div>
                 </div>
             </div>
-
-            <!-- Recall Buttons -->
             <div class="fc-recall-btns" id="fcRecallBtns">
                 <button class="btn-dobara" onclick="recallCard(false)">✗ Dobara dikhao</button>
                 <button class="btn-yaad" onclick="recallCard(true)">✓ Yaad hai</button>
             </div>
         </div>
-
-        <!-- Question card -->
-        <div class="question-card card">
-            <div class="q-meta">
-                <span class="tag" id="qTag">History • Ch. 1</span>
-                <span class="q-counter" id="qCounter">Question 1 of 5</span>
-                <span class="score-chip" id="scoreDisplay">Score: 0</span>
-            </div>
-
-            <div id="qText">Harappan Civilization ka town planning kis type ka tha?</div>
-
-            <div class="options-grid" id="optionsGrid">
-                <div class="option" onclick="selectOption(this,0)">Random / Unplanned</div>
-                <div class="option" onclick="selectOption(this,1)">Grid System</div>
-                <div class="option" onclick="selectOption(this,2)">Circular Pattern</div>
-                <div class="option" onclick="selectOption(this,3)">Linear Pattern</div>
-            </div>
-
-            <div class="feedback" id="feedback">
-                <strong id="feedbackTitle"></strong>
-                <p id="feedbackText" style="margin:6px 0 0;"></p>
-            </div>
-
-            <div class="quiz-footer">
-                <button class="btn-ghost" id="checkBtn" onclick="checkAnswer()">Check Answer ✓</button>
-                <button class="btn-primary" id="nextBtn" onclick="nextQuestion()" style="display:none;">Next Question →</button>
-            </div>
-        </div>
-
-        <!-- Tip -->
-        <div class="card tip-card" style="margin-top:20px;">
-            <div class="tip-icon">⚡</div>
-            <div>
-                <strong>Quick Tip:</strong>
-                <p>Bhai, previous year papers se direct questions aate hain. Unhe skip mat karna!</p>
-            </div>
-        </div>
     </div>
 
-    <script>
-        /* ── Question bank ──────────────────────────────────────── */
-        const questions = [
-            {
-                tag: 'History • Ch. 1',
-                text: 'Harappan Civilization ka town planning kis type ka tha?',
-                options: ['Random / Unplanned', 'Grid System', 'Circular Pattern', 'Linear Pattern'],
-                correct: 1,
-                feedback: 'Grid System hi sahi jawab hai! Harappans ki roads ek dusre ko exact 90° pe kaatti thi. Bohot modern thinking tha unka. 🏛️'
-            },
-            {
-                tag: 'History • Ch. 1',
-                text: 'Mohenjo-daro mein milne wala "Great Bath" kisliye use hota tha?',
-                options: ['Swimming ke liye', 'Ritual bathing ke liye', 'Farming ke liye', 'Trade ke liye'],
-                correct: 1,
-                feedback: 'Great Bath ritual/religious bathing ke liye use hota tha. Ye Mohenjo-daro ki sabse important structure hai. 🛁'
-            },
-            {
-                tag: 'History • Ch. 1',
-                text: 'Harappan Civilization ka ek aur naam kya hai?',
-                options: ['Vedic Civilization', 'Indus Valley Civilization', 'Gupta Civilization', 'Maurya Civilization'],
-                correct: 1,
-                feedback: 'Indus Valley Civilization! Ye naam Indus River ke naam pe hai jiske kinare ye civilization thi. 🌊'
-            },
-            {
-                tag: 'History • Ch. 1',
-                text: 'Harappan civilization ke logon ki writing system kaisi thi?',
-                options: ['Latin script', 'Abhi tak undeciphered script', 'Sanskrit', 'Arabic'],
-                correct: 1,
-                feedback: 'Harappan script abhi tak decode nahi hui hai! Ye duniya ke biggest archaeological mysteries mein se ek hai. 🔍'
-            },
-            {
-                tag: 'History • Ch. 1',
-                text: 'Kaunsa element Harappan cities ko alag banata tha?',
-                options: ['Wooden structures', 'Advanced drainage system', 'Stone temples', 'Iron tools'],
-                correct: 1,
-                feedback: 'Advanced drainage system! Har ghar mein covered drains thi jo main drain se judi thi. Bohot hygienic civilization thi. 💧'
-            }
-        ];
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════════════════════════ */
+var quizData = null;
+var currentQ = 0;
+var score = 0;
+var answered = false;
+var selected = -1;
+var selectedDifficulty = 'Medium';
+var selectedCount = 5;
+var answeredQuestions = [];
+var quizAbortController = null;
+var flashcardMode = false;
 
-        let currentQ   = 0;
-        let score      = 0;
-        let answered   = false;
-        let selected   = -1;
+/* ── Flashcard state ── */
+var fcActiveDeck = [];
+var fcDoneCount = 0;
+var fcTotalCards = 0;
+var fcIsFlipped = false;
+var fcTopicName = '';
 
-        function loadQuestion() {
-            answered = false;
-            selected = -1;
-            const q = questions[currentQ];
+/* ═══════════════════════════════════════════════════════════════
+   SAFE LOCALSTORAGE
+   ═══════════════════════════════════════════════════════════════ */
+function safeGetJSON(key, fallback) {
+    try { var d = localStorage.getItem(key); if (!d) return fallback; return JSON.parse(d); }
+    catch (e) { try { localStorage.removeItem(key); } catch(e2) {} return fallback; }
+}
 
-            document.getElementById('qTag').textContent     = q.tag;
-            document.getElementById('qCounter').textContent = `Question ${currentQ + 1} of ${questions.length}`;
-            document.getElementById('qText').textContent    = q.text;
-            document.getElementById('feedback').style.display = 'none';
-            document.getElementById('feedback').className   = 'feedback';
-            document.getElementById('checkBtn').style.display  = '';
-            document.getElementById('nextBtn').style.display   = 'none';
+/* ═══════════════════════════════════════════════════════════════
+   SETUP HELPERS
+   ═══════════════════════════════════════════════════════════════ */
+function setQuickTopic(topic) {
+    document.getElementById('topicInput').value = topic;
+    document.getElementById('topicInput').focus();
+}
 
-            const grid = document.getElementById('optionsGrid');
-            grid.innerHTML = '';
-            q.options.forEach((opt, i) => {
-                const div = document.createElement('div');
-                div.className = 'option';
-                div.textContent = opt;
-                div.setAttribute('onclick', `selectOption(this, ${i})`);
-                grid.appendChild(div);
-            });
+function setDifficulty(el, difficulty) {
+    selectedDifficulty = difficulty;
+    document.querySelectorAll('#difficultyGroup .pill').forEach(function(p) { p.classList.remove('active'); });
+    el.classList.add('active');
+}
+
+function setCount(el, count) {
+    selectedCount = count;
+    document.querySelectorAll('#countGroup .pill').forEach(function(p) { p.classList.remove('active'); });
+    el.classList.add('active');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PHASE MANAGEMENT
+   ═══════════════════════════════════════════════════════════════ */
+function showSetup() {
+    document.getElementById('setupPhase').style.display = '';
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display = 'none';
+    document.getElementById('quizPhase').style.display = 'none';
+    document.getElementById('resultsPhase').style.display = 'none';
+    document.getElementById('flashcardContainer').style.display = 'none';
+    // Restore correct card visibility based on mode
+    if (flashcardMode) {
+        document.getElementById('quizSetupCard').style.display = 'none';
+        document.getElementById('flashcardSetupCard').style.display = '';
+    } else {
+        document.getElementById('quizSetupCard').style.display = '';
+        document.getElementById('flashcardSetupCard').style.display = 'none';
+    }
+    loadQuizHistory();
+}
+
+function showLoading(title, msg) {
+    document.getElementById('setupPhase').style.display = 'none';
+    document.getElementById('loadingState').style.display = 'block';
+    document.getElementById('errorState').style.display = 'none';
+    document.getElementById('quizPhase').style.display = 'none';
+    document.getElementById('resultsPhase').style.display = 'none';
+    document.getElementById('flashcardContainer').style.display = 'none';
+    if (title) document.getElementById('loadingTitle').textContent = title;
+    if (msg) document.getElementById('loadingMsg').textContent = msg;
+}
+
+function showError(msg) {
+    document.getElementById('setupPhase').style.display = 'none';
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display = 'block';
+    document.getElementById('quizPhase').style.display = 'none';
+    document.getElementById('resultsPhase').style.display = 'none';
+    document.getElementById('flashcardContainer').style.display = 'none';
+    if (msg) document.getElementById('errorMsg').textContent = msg;
+}
+
+function showQuiz() {
+    document.getElementById('setupPhase').style.display = 'none';
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display = 'none';
+    document.getElementById('quizPhase').style.display = 'block';
+    document.getElementById('resultsPhase').style.display = 'none';
+    document.getElementById('flashcardContainer').style.display = 'none';
+}
+
+function showResults() {
+    document.getElementById('setupPhase').style.display = 'none';
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display = 'none';
+    document.getElementById('quizPhase').style.display = 'none';
+    document.getElementById('resultsPhase').style.display = 'block';
+    document.getElementById('flashcardContainer').style.display = 'none';
+}
+
+function showFlashcards() {
+    document.getElementById('setupPhase').style.display = 'none';
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display = 'none';
+    document.getElementById('quizPhase').style.display = 'none';
+    document.getElementById('resultsPhase').style.display = 'none';
+    document.getElementById('flashcardContainer').style.display = 'flex';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODE TOGGLE — Quiz ↔ Flashcard
+   ═══════════════════════════════════════════════════════════════ */
+function toggleStudyMode() {
+    flashcardMode = !flashcardMode;
+    var btn = document.getElementById('modeToggleBtn');
+    if (flashcardMode) {
+        btn.textContent = '🎯 Quiz Mode';
+        btn.classList.add('flashcard-active');
+        document.getElementById('quizSetupCard').style.display = 'none';
+        document.getElementById('flashcardSetupCard').style.display = '';
+        // Copy topic between inputs
+        var quizTopic = document.getElementById('topicInput').value;
+        if (quizTopic && !document.getElementById('flashcardTopicInput').value) {
+            document.getElementById('flashcardTopicInput').value = quizTopic;
         }
-
-        function selectOption(el, idx) {
-            if (answered) return;
-            selected = idx;
-            document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
-            el.classList.add('selected');
+    } else {
+        btn.textContent = '🎴 Flashcard Mode';
+        btn.classList.remove('flashcard-active');
+        document.getElementById('quizSetupCard').style.display = '';
+        document.getElementById('flashcardSetupCard').style.display = 'none';
+        // Copy topic back
+        var fcTopic = document.getElementById('flashcardTopicInput').value;
+        if (fcTopic && !document.getElementById('topicInput').value) {
+            document.getElementById('topicInput').value = fcTopic;
         }
+    }
+}
 
-        function checkAnswer() {
-            if (selected === -1) {
-                alert('Pehle ek option choose karo bhai! 😄');
-                return;
-            }
-            answered = true;
-            const q = questions[currentQ];
-            const opts = document.querySelectorAll('.option');
-            const feedbackEl = document.getElementById('feedback');
+/* ═══════════════════════════════════════════════════════════════
+   LOADING PROGRESS MESSAGES
+   ═══════════════════════════════════════════════════════════════ */
+var loadingMessages = [
+    'Generating questions... ✨',
+    'Almost there... 🧠',
+    'Validating quiz... ✅',
+    'Putting finishing touches... 🎨'
+];
+var loadingInterval = null;
 
-            opts.forEach((opt, i) => {
-                if (i === q.correct) opt.classList.add('correct');
-                else if (i === selected) opt.classList.add('wrong');
-                opt.setAttribute('onclick', '');
-            });
+function startLoadingProgress() {
+    var idx = 0;
+    loadingInterval = setInterval(function() {
+        idx = (idx + 1) % loadingMessages.length;
+        document.getElementById('loadingMsg').textContent = loadingMessages[idx];
+    }, 3000);
+}
 
-            if (selected === q.correct) {
-                score++;
-                feedbackEl.className = 'feedback correct';
-                document.getElementById('feedbackTitle').textContent = 'Bilkul Sahi! 🎉';
-            } else {
-                feedbackEl.className = 'feedback wrong';
-                document.getElementById('feedbackTitle').textContent = 'Koi baat nahi! 💪';
-            }
+function stopLoadingProgress() {
+    if (loadingInterval) { clearInterval(loadingInterval); loadingInterval = null; }
+}
 
-            document.getElementById('feedbackText').textContent = q.feedback;
-            feedbackEl.style.display = 'block';
-            document.getElementById('scoreDisplay').textContent = `Score: ${score}`;
-            document.getElementById('checkBtn').style.display = 'none';
+/* ═══════════════════════════════════════════════════════════════
+   START QUIZ
+   ═══════════════════════════════════════════════════════════════ */
+async function startQuiz() {
+    var topic = document.getElementById('topicInput').value.trim();
+    if (!topic) {
+        document.getElementById('topicInput').focus();
+        document.getElementById('topicInput').style.borderColor = '#EF4444';
+        setTimeout(function() { document.getElementById('topicInput').style.borderColor = ''; }, 2000);
+        return;
+    }
 
-            if (currentQ < questions.length - 1) {
-                document.getElementById('nextBtn').style.display = '';
-            } else {
-                document.getElementById('nextBtn').textContent  = 'See Final Score 🏆';
-                document.getElementById('nextBtn').style.display = '';
-            }
-        }
+    quizData = null; currentQ = 0; score = 0; answered = false; selected = -1; answeredQuestions = [];
 
-        function nextQuestion() {
-            currentQ++;
-            if (currentQ >= questions.length) {
-                showFinalScore();
-            } else {
-                loadQuestion();
-            }
-        }
+    var countNote = selectedCount >= 20 ? ' (this may take a moment ⏳)' : '';
+    showLoading('Generating Quiz...', 'Generating ' + selectedCount + ' ' + selectedDifficulty.toLowerCase() + ' questions about "' + topic + '"...' + countNote);
+    startLoadingProgress();
 
-        let activeSubject = 'History';
-        let originalQuestionCardHtml = '';
+    // Cancel any stale request
+    if (quizAbortController) { try { quizAbortController.abort(); } catch(e) {} }
+    quizAbortController = new AbortController();
 
-        const subjectIcons = {
-            'History': '🏛️ History',
-            'Pol. Science': '⚖️ Pol. Science',
-            'Sociology': '🤝 Sociology',
-            'Geography': '🌍 Geography'
-        };
+    // 30 second timeout
+    var timeout = setTimeout(function() {
+        if (quizAbortController) { try { quizAbortController.abort(); } catch(e) {} }
+    }, 30000);
 
-        function updateScoreDisplays() {
-            document.querySelectorAll('.subject-filter .filter-chip').forEach(chip => {
-                let subject = '';
-                if (chip.textContent.includes('History')) subject = 'History';
-                else if (chip.textContent.includes('Pol. Science')) subject = 'Pol. Science';
-                else if (chip.textContent.includes('Sociology')) subject = 'Sociology';
-                else if (chip.textContent.includes('Geography')) subject = 'Geography';
-
-                if (subject) {
-                    const lastScore = localStorage.getItem(`sathi_quiz_score_${subject}`);
-                    if (lastScore !== null) {
-                        chip.innerHTML = `${subjectIcons[subject]} <span style="font-size:11px; opacity:0.85; font-weight:normal;">• Last: ${lastScore}/5</span>`;
-                    } else {
-                        chip.innerHTML = `${subjectIcons[subject]}`;
-                    }
-                }
-            });
-        }
-
-        function showFinalScore() {
-            // Save final score to localStorage
-            localStorage.setItem(`sathi_quiz_score_${activeSubject}`, score);
-            updateScoreDisplays();
-
-            const pct = Math.round((score / questions.length) * 100);
-            const msg = pct >= 80
-                ? 'Wah bhai, tu toh champion hai! 🏆'
-                : pct >= 60
-                    ? 'Achha performance! Thodi aur practice karo. 📚'
-                    : 'Koi baat nahi, Sathi ke saath aur revise karte hain! 💪';
-
-            document.querySelector('.question-card').innerHTML = `
-                <div style="text-align:center;padding:20px 0;">
-                    <div style="font-size:60px;margin-bottom:16px;">${pct >= 80 ? '🏆' : pct >= 60 ? '😊' : '💪'}</div>
-                    <h2>Quiz Complete!</h2>
-                    <p style="font-size:2rem;font-weight:800;color:var(--accent);margin:12px 0;">${score}/${questions.length}</p>
-                    <p style="color:var(--fg-muted);">${msg}</p>
-                    <div style="display:flex;gap:12px;justify-content:center;margin-top:24px;flex-wrap:wrap;">
-                        <button class="btn-ghost" onclick="restartQuiz()">Try Again 🔄</button>
-                        <a href="chat.html" class="btn-primary">Study with Sathi 💬</a>
-                    </div>
-                </div>
-            `;
-        }
-
-        function restartQuiz() {
-            currentQ = 0;
-            score    = 0;
-            if (originalQuestionCardHtml) {
-                document.querySelector('.question-card').innerHTML = originalQuestionCardHtml;
-            }
-            loadQuestion();
-        }
-
-        function setFilter(el, subject) {
-            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
-            if (subject) {
-                activeSubject = subject;
-            }
-        }
-
-        /* ── Flashcard Data ─────────────────────────────────────── */
-        const flashcardDecks = {
-            'History': [
-                {
-                    tag: 'History • Ch. 1',
-                    term: 'Harappan Civilization ka Town Planning',
-                    explanation: 'Grid System tha bhai! Roads ek dusre ko exact 90° pe kaatti thi. Ghar, drains, sab kuch planned tha — ekdum modern city jaisa. 🏙️'
-                },
-                {
-                    tag: 'History • Ch. 1',
-                    term: 'Great Bath (Mohenjo-daro)',
-                    explanation: 'Ritual bathing ke liye use hota tha. Ye ek bada pool tha jo waterproof tha — beliefs ke anusaar pooja-paath se pehle nahana zaroori tha. 🛁'
-                },
-                {
-                    tag: 'History • Ch. 1',
-                    term: 'Harappan Script — Decoded hua ya nahi?',
-                    explanation: 'Abhi tak NAHI! Ye duniya ke biggest archaeological mysteries mein se ek hai. Thousands of seals mile hain lekin script ka matlab koi nahi jaanta. 🔍'
-                },
-                {
-                    tag: 'History • Ch. 1',
-                    term: 'Harappan Civilization ka doosra naam?',
-                    explanation: 'Indus Valley Civilization! Kyunki ye Indus River (Sindhu Nadi) ke kinare basi thi. India aur Pakistan dono mein iske sites hain. 🌊'
-                },
-                {
-                    tag: 'History • Ch. 1',
-                    term: 'Harappan cities ki sabse khaas cheez?',
-                    explanation: 'Advanced Drainage System! Har ghar mein covered drains thi jo main drain se connected thi. 4000 saal pehle itna sanitation — mind-blowing! 💧'
-                },
-                {
-                    tag: 'History • Ch. 1',
-                    term: 'Harappan civilization kab shuru aur khatam hui?',
-                    explanation: 'Roughly 3300 BCE se 1300 BCE tak. Mature phase 2600 BCE–1900 BCE tha. Ye Bronze Age civilization thi. 📅'
-                },
-                {
-                    tag: 'History • Ch. 1',
-                    term: 'Harappan civilization ke major cities?',
-                    explanation: 'Mohenjo-daro (Pakistan mein), Harappa (Punjab), Dholavira (Gujarat), Lothal (Gujarat — famous for its dockyard!). Lothal trade hub tha! ⚓'
-                },
-                {
-                    tag: 'History • Ch. 1',
-                    term: 'Granaries ka kya kaam tha?',
-                    explanation: 'Anaj store karne ke liye bade warehouses the. Iska matlab organized trade aur taxation system tha — ekdum government-managed storage! 🌾'
-                },
-                {
-                    tag: 'History • Ch. 1',
-                    term: 'Harappan civilization mein bronze ka use?',
-                    explanation: 'Bronze Age civilization thi isliye tambe (copper) aur tin ko milake bronze banate the. Famous "Dancing Girl" statue bhi bronze ki hai! 💃'
-                },
-                {
-                    tag: 'History • Ch. 1',
-                    term: 'Harappan decline ke kya kaaran the?',
-                    explanation: 'Multiple theories hain — climate change, floods, Aryan invasion (ab discredited), ecological damage. Saraswati River ka sukh jaana bhi ek theory hai. 🌵'
-                }
-            ],
-            'Pol. Science': [
-                {
-                    tag: 'Pol. Science • Ch. 1',
-                    term: 'Constitution kya hota hai?',
-                    explanation: 'Desh ke fundamental laws ka collection! Ye batata hai ki government kaise chalegi, rights kya honge, aur powers ka division kaisa hoga. India ka constitution duniya ka sabse lamba written constitution hai. 📜'
-                },
-                {
-                    tag: 'Pol. Science • Ch. 1',
-                    term: 'Fundamental Rights — Article 12-35',
-                    explanation: '6 Fundamental Rights hain: Equality, Freedom, Against Exploitation, Religion, Culture & Education, Constitutional Remedies. Article 32 "Heart & Soul of Constitution" hai — Dr. Ambedkar ne kaha tha! ❤️'
-                },
-                {
-                    tag: 'Pol. Science • Ch. 1',
-                    term: 'Directive Principles of State Policy (DPSP)',
-                    explanation: 'Part IV (Articles 36-51). Non-justiciable hain — matlab court enforce nahi kar sakti. Lekin state inhe follow karne ki koshish kare. Ireland ke constitution se inspired hain! 🌐'
-                },
-                {
-                    tag: 'Pol. Science • Ch. 1',
-                    term: 'Secularism in India',
-                    explanation: 'India mein secularism ka matlab hai — state ka koi official religion nahi, sabhi religions ko equal respect. Western secularism se alag hai jahan religion aur state completely separate hote hain. 🕌🛕⛪'
-                },
-                {
-                    tag: 'Pol. Science • Ch. 1',
-                    term: 'Parliamentary vs Presidential System',
-                    explanation: 'India mein Parliamentary system hai. PM aur Cabinet Parliament ke liye accountable hain. President system mein (jaise USA) executive legislature ke liye accountable nahi hoti. 🏛️'
-                }
-            ],
-            'Sociology': [
-                {
-                    tag: 'Sociology • Ch. 1',
-                    term: 'Sociology kya study karta hai?',
-                    explanation: 'Society, social institutions, aur human behaviour in groups. Auguste Comte ne sociology shuru kiya — woh "Father of Sociology" kehlaate hain. Unka idea tha ki society ko scientifically study karo! 🔬'
-                },
-                {
-                    tag: 'Sociology • Ch. 1',
-                    term: 'Social Stratification',
-                    explanation: 'Society mein log alag-alag layers (strata) mein divided hote hain — wealth, power, ya status ke basis par. India mein caste system ek example hai. Open aur closed stratification systems hote hain. 📊'
-                },
-                {
-                    tag: 'Sociology • Ch. 1',
-                    term: 'Socialization kya hai?',
-                    explanation: 'Wo process jisme hum society ke norms, values, aur culture seekhte hain. Family primary agent of socialization hai. School, peers, media bhi important agents hain. Lifelong process hai! 👨‍👩‍👧'
-                },
-                {
-                    tag: 'Sociology • Ch. 1',
-                    term: 'Émile Durkheim ka contribution',
-                    explanation: 'Social solidarity ka concept diya — Mechanical (traditional societies) aur Organic (modern societies). "Suicide" book mein bataya ki even personal acts pe social forces affect karti hain! 📖'
-                },
-                {
-                    tag: 'Sociology • Ch. 1',
-                    term: 'Max Weber ka main concept',
-                    explanation: 'Verstehen (understanding from within) — sociology mein subjective meaning samajhna zaroori hai. Power, Authority, aur Bureaucracy theory bhi di. "Protestant Ethic and Spirit of Capitalism" famous book hai! 💼'
-                }
-            ],
-            'Geography': [
-                {
-                    tag: 'Geography • Ch. 1',
-                    term: 'Physical Geography vs Human Geography',
-                    explanation: 'Physical = landforms, climate, rivers, soils. Human = population, settlements, economic activities. Dono milke complete picture banate hain! Integrated geography dono ko saath dekhta hai. 🗺️'
-                },
-                {
-                    tag: 'Geography • Ch. 1',
-                    term: 'Plate Tectonics Theory',
-                    explanation: 'Earth ki crust 7-8 major plates mein divided hai jo continuously move karti hain. Jab plates milti hain — mountains bante hain (Himalayas!). Jab alag hoti hain — oceans bante hain. Alfred Wegener ne shuruat ki! ⛰️'
-                },
-                {
-                    tag: 'Geography • Ch. 1',
-                    term: 'Monsoon kaise aata hai?',
-                    explanation: 'Differential heating of land and sea! Garmi mein land jaldi garam hoti hai, low pressure area banta hai, sea se nami wali hawa aati hai = monsoon. India June se September — Southwest Monsoon. 🌧️'
-                },
-                {
-                    tag: 'Geography • Ch. 1',
-                    term: 'India ki major river systems',
-                    explanation: 'Himalayan Rivers: Ganga, Yamuna, Brahmaputra (perennial — saal bhar paani). Peninsular Rivers: Krishna, Godavari, Cauvery (seasonal). Himalayan rivers glacier-fed bhi hain! 🏞️'
-                },
-                {
-                    tag: 'Geography • Ch. 1',
-                    term: 'Soil types of India',
-                    explanation: 'Alluvial Soil (most fertile, Ganga plains), Black/Regur Soil (cotton ke liye best, Deccan), Red Soil (Tamil Nadu), Laterite Soil (heavy rainfall areas), Desert Soil (Rajasthan). Alluvial sabse zyada area cover karta hai! 🌱'
-                }
-            ]
-        };
-
-        /* ── Flashcard State ─────────────────────────────────────── */
-        let flashcardMode   = false;
-        let fcActiveDeck    = [];
-        let fcDoneCount     = 0;
-        let fcTotalCards    = 0;
-        let fcIsFlipped     = false;
-
-        function toggleStudyMode() {
-            flashcardMode = !flashcardMode;
-            const btn = document.getElementById('modeToggleBtn');
-            const quizCard = document.querySelector('.question-card');
-            const fcContainer = document.getElementById('flashcardContainer');
-            const tipCard = document.querySelector('.tip-card');
-
-            if (flashcardMode) {
-                btn.textContent = '🎯 Quiz Mode';
-                btn.classList.add('flashcard-active');
-                quizCard.style.display = 'none';
-                if (tipCard) tipCard.style.display = 'none';
-                fcContainer.style.display = 'flex';
-                startFlashcardDeck();
-            } else {
-                btn.textContent = '🎴 Flashcard Mode';
-                btn.classList.remove('flashcard-active');
-                quizCard.style.display = '';
-                if (tipCard) tipCard.style.display = '';
-                fcContainer.style.display = 'none';
-            }
-        }
-
-        function startFlashcardDeck() {
-            const deck = flashcardDecks[activeSubject] || flashcardDecks['History'];
-            fcActiveDeck  = [...deck];  // shallow copy
-            fcDoneCount   = 0;
-            fcTotalCards  = deck.length;
-            fcIsFlipped   = false;
-
-            document.getElementById('fcCard').classList.remove('flipped');
-            document.getElementById('fcRecallBtns').style.display = 'flex';
-            renderFlashcard();
-        }
-
-        function renderFlashcard() {
-            if (fcActiveDeck.length === 0) {
-                showFlashcardComplete();
-                return;
-            }
-
-            const card = fcActiveDeck[0];
-            fcIsFlipped = false;
-            document.getElementById('fcCard').classList.remove('flipped');
-
-            document.getElementById('fcTagFront').textContent     = card.tag;
-            document.getElementById('fcTagBack').textContent      = card.tag;
-            document.getElementById('fcTermFront').textContent    = card.term;
-            document.getElementById('fcExplanationBack').textContent = card.explanation;
-
-            // Progress
-            const done = fcTotalCards - fcActiveDeck.length + fcDoneCount;
-            const progressPct = fcTotalCards > 0 ? (fcDoneCount / fcTotalCards) * 100 : 0;
-            document.getElementById('fcProgressFill').style.width  = `${progressPct}%`;
-            document.getElementById('fcProgressLabel').textContent = `Card ${Math.min(fcDoneCount + 1, fcTotalCards)} of ${fcTotalCards}`;
-        }
-
-        function flipCard() {
-            fcIsFlipped = !fcIsFlipped;
-            document.getElementById('fcCard').classList.toggle('flipped', fcIsFlipped);
-        }
-
-        function recallCard(remembered) {
-            if (fcActiveDeck.length === 0) return;
-            const card = fcActiveDeck.shift();
-
-            if (remembered) {
-                fcDoneCount++;
-            } else {
-                // Push to end of deck (spaced repetition)
-                fcActiveDeck.push(card);
-            }
-
-            renderFlashcard();
-        }
-
-        function showFlashcardComplete() {
-            const fcContainer = document.getElementById('flashcardContainer');
-            const pct = Math.round((fcDoneCount / fcTotalCards) * 100);
-            const star = pct === 100 ? '🌟' : pct >= 70 ? '😊' : '💪';
-            const msg = pct === 100
-                ? 'Sab kuch yaad hai! Aage badh, champion!'
-                : pct >= 70
-                    ? 'Bohot achha! Thoda aur revise karo.'
-                    : 'Practice makes perfect, dost. Dobara karo!';
-
-            fcContainer.innerHTML = `
-                <div class="fc-complete">
-                    <div class="big-emoji">${star}</div>
-                    <h2 style="margin: 0 0 8px;">Deck Complete! 🎴</h2>
-                    <p style="font-size:2.2rem; font-weight:800; color:var(--accent); margin:12px 0;">${fcDoneCount}/${fcTotalCards}</p>
-                    <p style="color:var(--fg-muted); margin-bottom:6px;">${msg}</p>
-                    <p style="font-size:1.1rem; font-weight:700; color:var(--accent); margin-bottom:24px;">Sathi ki taraf se shabash! 🌟</p>
-                    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-                        <button class="btn-ghost" onclick="startFlashcardDeck()">Phir se karo 🔄</button>
-                        <button class="btn-primary" onclick="toggleStudyMode()">Quiz Mode try karo 🎯</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        /* Init */
-        window.addEventListener('DOMContentLoaded', () => {
-            originalQuestionCardHtml = document.querySelector('.question-card').innerHTML;
-            updateScoreDisplays();
+    try {
+        var response = await fetch('/api/quiz', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ topic: topic, difficulty: selectedDifficulty, numQuestions: selectedCount }),
+            signal: quizAbortController.signal
         });
+
+        clearTimeout(timeout);
+        stopLoadingProgress();
+        var data = await response.json();
+
+        if (data.error) { showError(data.error); return; }
+        if (!data.questions || !Array.isArray(data.questions) || data.questions.length === 0) {
+            showError('Unable to generate quiz right now. Please try again.'); return;
+        }
+
+        // Client-side validation
+        for (var i = 0; i < data.questions.length; i++) {
+            var q = data.questions[i];
+            if (!q.question || !Array.isArray(q.options) || q.options.length !== 4 ||
+                typeof q.correctAnswer !== 'number' || q.correctAnswer < 0 || q.correctAnswer > 3) {
+                showError('Quiz generation returned malformed data. Please try again.'); return;
+            }
+        }
+
+        quizData = data;
+        showQuiz();
         loadQuestion();
-    </script>
+
+    } catch (err) {
+        clearTimeout(timeout);
+        stopLoadingProgress();
+        if (err.name === 'AbortError') {
+            showError('Request took too long. Please try again with fewer questions.');
+        } else if (err.message && err.message.toLowerCase().includes('fetch')) {
+            showError('Network connection issue. Please check your internet.');
+        } else {
+            showError('Unable to generate quiz right now. Please try again.');
+        }
+    }
+    quizAbortController = null;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   QUIZ INTERACTION
+   ═══════════════════════════════════════════════════════════════ */
+function loadQuestion() {
+    answered = false; selected = -1;
+    var q = quizData.questions[currentQ];
+    var total = quizData.questions.length;
+
+    document.getElementById('qTag').textContent = quizData.topic || 'Quiz';
+    document.getElementById('qDifficulty').textContent = quizData.difficulty || 'Medium';
+    document.getElementById('progressText').textContent = 'Question ' + (currentQ + 1) + ' of ' + total;
+    document.getElementById('progressFill').style.width = ((currentQ / total) * 100) + '%';
+    document.getElementById('qText').textContent = q.question;
+    document.getElementById('feedback').style.display = 'none';
+    document.getElementById('feedback').className = 'feedback';
+    document.getElementById('checkBtn').style.display = '';
+    document.getElementById('nextBtn').style.display = 'none';
+
+    var grid = document.getElementById('optionsGrid');
+    grid.innerHTML = '';
+    q.options.forEach(function(opt, i) {
+        var div = document.createElement('div');
+        div.className = 'option';
+        div.textContent = opt;
+        div.setAttribute('onclick', 'selectOption(this, ' + i + ')');
+        grid.appendChild(div);
+    });
+}
+
+function selectOption(el, idx) {
+    if (answered) return;
+    selected = idx;
+    document.querySelectorAll('.option').forEach(function(o) { o.classList.remove('selected'); });
+    el.classList.add('selected');
+}
+
+function checkAnswer() {
+    if (selected === -1) { alert('Pehle ek option choose karo! 😄'); return; }
+    answered = true;
+    var q = quizData.questions[currentQ];
+    var opts = document.querySelectorAll('.option');
+    var feedbackEl = document.getElementById('feedback');
+    var isCorrect = (selected === q.correctAnswer);
+
+    opts.forEach(function(opt, i) {
+        if (i === q.correctAnswer) opt.classList.add('correct');
+        else if (i === selected && !isCorrect) opt.classList.add('wrong');
+        opt.setAttribute('onclick', '');
+        opt.style.cursor = 'default';
+    });
+
+    if (isCorrect) {
+        score++;
+        feedbackEl.className = 'feedback correct';
+        document.getElementById('feedbackTitle').textContent = 'Bilkul Sahi! 🎉';
+    } else {
+        feedbackEl.className = 'feedback wrong';
+        document.getElementById('feedbackTitle').textContent = 'Koi baat nahi! 💪';
+    }
+
+    document.getElementById('feedbackText').textContent = q.explanation || '';
+    feedbackEl.style.display = 'block';
+    document.getElementById('scoreDisplay').textContent = 'Score: ' + score;
+    document.getElementById('checkBtn').style.display = 'none';
+
+    answeredQuestions.push({
+        question: q.question,
+        userAnswer: q.options[selected],
+        correctAnswer: q.options[q.correctAnswer],
+        isCorrect: isCorrect,
+        explanation: q.explanation || ''
+    });
+
+    if (currentQ < quizData.questions.length - 1) {
+        document.getElementById('nextBtn').style.display = '';
+        document.getElementById('nextBtn').textContent = 'Next Question →';
+    } else {
+        document.getElementById('nextBtn').textContent = 'See Results 🏆';
+        document.getElementById('nextBtn').style.display = '';
+    }
+}
+
+function nextQuestion() {
+    currentQ++;
+    if (currentQ >= quizData.questions.length) { showFinalResults(); }
+    else { loadQuestion(); }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESULTS
+   ═══════════════════════════════════════════════════════════════ */
+function showFinalResults() {
+    var total = quizData.questions.length;
+    var pct = Math.round((score / total) * 100);
+    var emoji = pct >= 80 ? '🏆' : pct >= 60 ? '😊' : pct >= 40 ? '💪' : '📚';
+    var msg = pct >= 80 ? 'Outstanding! Tu toh champion hai! 🔥'
+        : pct >= 60 ? 'Achha performance! Thodi aur practice se top karega! 📈'
+        : pct >= 40 ? 'Good start! Keep practicing, improvement zaroor hoga! 💪'
+        : 'Koi baat nahi yaar, practice se sab hota hai. Dobara try kar! 🌟';
+
+    document.getElementById('resultEmoji').textContent = emoji;
+    document.getElementById('resultScore').textContent = score + '/' + total;
+    document.getElementById('resultAccuracy').textContent = pct + '% Accuracy';
+    document.getElementById('resultMessage').textContent = msg;
+
+    var analyticsHtml = '';
+    var correct = answeredQuestions.filter(function(q) { return q.isCorrect; });
+    var wrong = answeredQuestions.filter(function(q) { return !q.isCorrect; });
+
+    if (correct.length > 0) {
+        analyticsHtml += '<h3>✅ Strengths</h3>';
+        correct.forEach(function(q) {
+            analyticsHtml += '<div class="analytics-item strength">' + q.question.substring(0, 120) + '</div>';
+        });
+    }
+    if (wrong.length > 0) {
+        analyticsHtml += '<h3>❌ Weak Areas — Revise These</h3>';
+        wrong.forEach(function(q) {
+            analyticsHtml += '<div class="analytics-item weakness"><strong>' + q.question.substring(0, 120) + '</strong><br><span style="font-size:13px;color:var(--fg-muted);">Correct answer: ' + q.correctAnswer + '</span></div>';
+        });
+        analyticsHtml += '<h3>📖 Recommended Revision</h3>';
+        analyticsHtml += '<div class="analytics-item revision">Focus on the ' + wrong.length + ' question' + (wrong.length > 1 ? 's' : '') + ' you got wrong. Try another quiz on "<strong>' + (quizData.topic || 'this topic') + '</strong>" at the same or easier difficulty.</div>';
+    }
+    document.getElementById('analyticsSection').innerHTML = analyticsHtml;
+
+    saveQuizHistory({ topic: quizData.topic || 'Unknown', difficulty: quizData.difficulty || 'Medium', score: score, total: total, accuracy: pct, date: new Date().toISOString() });
+    showResults();
+}
+
+function retryQuiz() {
+    if (quizData && quizData.topic) { document.getElementById('topicInput').value = quizData.topic; }
+    flashcardMode = false;
+    document.getElementById('modeToggleBtn').textContent = '🎴 Flashcard Mode';
+    document.getElementById('modeToggleBtn').classList.remove('flashcard-active');
+    showSetup();
+    setTimeout(function() { startQuiz(); }, 100);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   QUIZ HISTORY
+   ═══════════════════════════════════════════════════════════════ */
+function saveQuizHistory(result) {
+    var history = safeGetJSON('sathi_quiz_history', []);
+    history.unshift(result);
+    if (history.length > 20) history = history.slice(0, 20);
+    try { localStorage.setItem('sathi_quiz_history', JSON.stringify(history)); } catch(e) {}
+}
+
+function loadQuizHistory() {
+    var history = safeGetJSON('sathi_quiz_history', []);
+    var section = document.getElementById('historySection');
+    var list = document.getElementById('historyList');
+    if (history.length === 0) { section.style.display = 'none'; return; }
+    section.style.display = 'block';
+    list.innerHTML = '';
+    history.forEach(function(item) {
+        var pct = item.accuracy || Math.round((item.score / item.total) * 100);
+        var dateStr = '';
+        try { var d = new Date(item.date); dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }); } catch(e) {}
+        var div = document.createElement('div');
+        div.className = 'history-item anim-fade';
+        div.innerHTML = '<div><div class="history-topic">' + (item.topic || 'Quiz') + '</div><div class="history-meta">' + (item.difficulty || '') + ' • ' + dateStr + '</div></div><div class="history-score-badge">' + item.score + '/' + item.total + ' (' + pct + '%)</div>';
+        list.appendChild(div);
+    });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FLASHCARD MODE — AI-Generated
+   ═══════════════════════════════════════════════════════════════ */
+async function startFlashcardDeck() {
+    var topic = document.getElementById('flashcardTopicInput').value.trim();
+    if (!topic) {
+        document.getElementById('flashcardTopicInput').focus();
+        document.getElementById('flashcardTopicInput').style.borderColor = '#EF4444';
+        setTimeout(function() { document.getElementById('flashcardTopicInput').style.borderColor = ''; }, 2000);
+        return;
+    }
+
+    fcTopicName = topic;
+    fcActiveDeck = [];
+    fcDoneCount = 0;
+    fcTotalCards = 0;
+    fcIsFlipped = false;
+
+    showLoading('Generating Flashcards...', 'Creating flashcards for "' + topic + '"... 🎴');
+
+    try {
+        var response = await fetch('/api/flashcards', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ topic: topic })
+        });
+        var data = await response.json();
+
+        if (data.error) { showError(data.error); return; }
+        if (!data.cards || !Array.isArray(data.cards) || data.cards.length === 0) {
+            showError('Unable to generate flashcards. Please try again.'); return;
+        }
+
+        fcActiveDeck = data.cards.slice(); // shallow copy
+        fcTotalCards = fcActiveDeck.length;
+        fcDoneCount = 0;
+        fcIsFlipped = false;
+
+        // Reset flashcard container HTML (in case it was replaced by complete screen)
+        resetFlashcardContainerHTML();
+        showFlashcards();
+        renderFlashcard();
+
+    } catch (err) {
+        if (err.message && err.message.toLowerCase().includes('fetch')) {
+            showError('Network connection issue. Please check your internet.');
+        } else {
+            showError('Unable to generate flashcards right now. Please try again.');
+        }
+    }
+}
+
+function resetFlashcardContainerHTML() {
+    var container = document.getElementById('flashcardContainer');
+    container.innerHTML = '<div style="width:100%;"><div class="fc-progress-bar-wrap"><div class="fc-progress-bar-fill" id="fcProgressFill" style="width:0%;"></div></div><div class="fc-progress-label" id="fcProgressLabel">Card 1 of 10</div></div><div class="fc-perspective"><div class="fc-card" id="fcCard" onclick="flipCard()"><div class="fc-face fc-face-front"><span class="fc-subject-tag" id="fcTagFront">Topic</span><div class="fc-term" id="fcTermFront">Loading...</div><div class="fc-hint">👆 Tap to flip</div></div><div class="fc-face fc-face-back"><span class="fc-subject-tag" id="fcTagBack">Topic</span><div class="fc-explanation" id="fcExplanationBack">Explanation...</div><div class="fc-hint" style="margin-top:12px;">👆 Tap to flip back</div></div></div></div><div class="fc-recall-btns" id="fcRecallBtns"><button class="btn-dobara" onclick="recallCard(false)">✗ Dobara dikhao</button><button class="btn-yaad" onclick="recallCard(true)">✓ Yaad hai</button></div>';
+}
+
+function renderFlashcard() {
+    if (fcActiveDeck.length === 0) { showFlashcardComplete(); return; }
+    var card = fcActiveDeck[0];
+    fcIsFlipped = false;
+    document.getElementById('fcCard').classList.remove('flipped');
+    document.getElementById('fcTagFront').textContent = fcTopicName;
+    document.getElementById('fcTagBack').textContent = fcTopicName;
+    document.getElementById('fcTermFront').textContent = card.term;
+    document.getElementById('fcExplanationBack').textContent = card.explanation;
+    var progressPct = fcTotalCards > 0 ? (fcDoneCount / fcTotalCards) * 100 : 0;
+    document.getElementById('fcProgressFill').style.width = progressPct + '%';
+    document.getElementById('fcProgressLabel').textContent = 'Card ' + Math.min(fcDoneCount + 1, fcTotalCards) + ' of ' + fcTotalCards;
+}
+
+function flipCard() {
+    fcIsFlipped = !fcIsFlipped;
+    document.getElementById('fcCard').classList.toggle('flipped', fcIsFlipped);
+}
+
+function recallCard(remembered) {
+    if (fcActiveDeck.length === 0) return;
+    var card = fcActiveDeck.shift();
+    if (remembered) { fcDoneCount++; }
+    else { fcActiveDeck.push(card); } // spaced repetition — push back to end
+    renderFlashcard();
+}
+
+function showFlashcardComplete() {
+    var pct = fcTotalCards > 0 ? Math.round((fcDoneCount / fcTotalCards) * 100) : 0;
+    var star = pct === 100 ? '🌟' : pct >= 70 ? '😊' : '💪';
+    var msg = pct === 100 ? 'Sab kuch yaad hai! Aage badh, champion!'
+        : pct >= 70 ? 'Bohot achha! Thoda aur revise karo.'
+        : 'Practice makes perfect, dost. Dobara karo!';
+
+    var container = document.getElementById('flashcardContainer');
+    container.innerHTML = '<div class="fc-complete"><div class="big-emoji">' + star + '</div><h2 style="margin:0 0 8px;">Deck Complete! 🎴</h2><p style="font-size:2.2rem;font-weight:800;color:var(--accent);margin:12px 0;">' + fcDoneCount + '/' + fcTotalCards + '</p><p style="color:var(--fg-muted);margin-bottom:6px;">' + msg + '</p><p style="font-size:1.1rem;font-weight:700;color:var(--accent);margin-bottom:24px;">Sathi ki taraf se shabash! 🌟</p><div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;"><button class="btn-ghost" onclick="startFlashcardDeck()">Phir se karo 🔄</button><button class="btn-primary" onclick="toggleStudyMode(); showSetup();">Quiz Mode try karo 🎯</button></div></div>';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   URL PARAMS — Pre-fill topic from chat page
+   ═══════════════════════════════════════════════════════════════ */
+function checkURLParams() {
+    var params = new URLSearchParams(window.location.search);
+    var topic = params.get('topic');
+    if (topic) {
+        document.getElementById('topicInput').value = topic;
+        // Auto-start quiz after a short delay
+        setTimeout(function() { startQuiz(); }, 300);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function() {
+    loadQuizHistory();
+
+    document.getElementById('topicInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); startQuiz(); }
+    });
+    document.getElementById('flashcardTopicInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); startFlashcardDeck(); }
+    });
+
+    // Check if topic was passed from chat page
+    checkURLParams();
+});
+</script>
+
 <script src="../js/dark-mode.js"></script>
 <script src="../components/floating-voice.js"></script>
 </body>

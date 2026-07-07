@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="Chat with Sathi AI — your Universal AI Tutor BFF.">
-    <title>Chat with Sathi — Your AI BFF</title>
+    <meta name="description" content="Chat with Sathi AI — your Universal AI Tutor for any subject.">
+    <title>Chat with Sathi — Your AI Tutor</title>
     <link rel="stylesheet" href="../css/style.css">
     <script src="../js/auth.js"></script>
     <script>
-        // Protect this route
         SathiAuth.requireAuth();
     </script>
     <style>
@@ -68,85 +67,6 @@
             overflow: hidden;
         }
 
-        .sidebar {
-            width: 220px;
-            flex-shrink: 0;
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            padding: 16px 12px;
-            gap: 8px;
-            overflow-y: auto;
-            transition: transform 0.28s ease;
-        }
-
-        .sidebar-title {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--fg-muted);
-            padding: 4px 8px;
-        }
-
-        .subject-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 11px 12px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: background 0.15s;
-            border: none;
-            background: none;
-            color: var(--fg);
-            width: 100%;
-            text-align: left;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .subject-item:hover,
-        .subject-item.active {
-            background: var(--soft-orange);
-            color: var(--accent);
-        }
-
-        .daily-quote {
-            margin-top: auto;
-            background: var(--soft-blue);
-            border-radius: var(--radius-sm);
-            padding: 12px;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.45);
-            z-index: 200;
-        }
-
-        @media (max-width: 700px) {
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                height: 100%;
-                z-index: 210;
-                width: 260px;
-                transform: translateX(-100%);
-                box-shadow: var(--shadow-lg);
-            }
-
-            .sidebar.open { transform: translateX(0); }
-            .sidebar-overlay.open { display: block; }
-        }
-
         .main-chat {
             flex: 1;
             display: flex;
@@ -189,6 +109,101 @@
             border-bottom-right-radius: 5px;
         }
 
+        /* ── Markdown styles inside AI messages ── */
+        .message.sathi h1, .message.sathi h2, .message.sathi h3, .message.sathi h4 {
+            margin: 12px 0 6px 0;
+            font-size: inherit;
+            line-height: 1.3;
+        }
+        .message.sathi h2 { font-size: 1.1em; }
+        .message.sathi h3 { font-size: 1.05em; }
+        .message.sathi p { margin: 4px 0; }
+        .message.sathi ul, .message.sathi ol { margin: 6px 0; padding-left: 20px; }
+        .message.sathi li { margin: 2px 0; }
+        .message.sathi pre {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            overflow-x: auto;
+            font-size: 13px;
+            line-height: 1.4;
+            margin: 8px 0;
+        }
+        .message.sathi code {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 13px;
+        }
+        .message.sathi :not(pre) > code {
+            background: var(--bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+        .message.sathi blockquote {
+            border-left: 3px solid var(--accent);
+            margin: 8px 0;
+            padding: 6px 12px;
+            background: var(--accent-light);
+            border-radius: 0 8px 8px 0;
+            font-style: italic;
+        }
+        .message.sathi table {
+            border-collapse: collapse;
+            margin: 8px 0;
+            width: 100%;
+            font-size: 13px;
+        }
+        .message.sathi th, .message.sathi td {
+            border: 1px solid var(--border);
+            padding: 6px 10px;
+            text-align: left;
+        }
+        .message.sathi th {
+            background: var(--bg);
+            font-weight: 700;
+        }
+        .message.sathi hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 12px 0;
+        }
+        .message.sathi strong { color: var(--accent); }
+        .message.sathi a { color: var(--accent); text-decoration: underline; }
+
+        /* ── Interactive Quiz Card ── */
+        .quiz-action-card {
+            background: var(--soft-orange);
+            border: 2px solid var(--accent);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-top: 8px;
+        }
+        .quiz-action-card p {
+            margin: 0 0 12px 0;
+            font-weight: 600;
+        }
+        .quiz-action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--radius-pill);
+            font-family: var(--font-body);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.18s, background 0.18s;
+            text-decoration: none;
+        }
+        .quiz-action-btn:hover {
+            background: var(--accent-dark);
+            transform: translateY(-1px);
+        }
+
         .typing-indicator {
             align-self: flex-start;
             background: var(--surface);
@@ -212,10 +227,7 @@
             flex-shrink: 0;
         }
 
-        .input-wrapper {
-            flex: 1;
-            position: relative;
-        }
+        .input-wrapper { flex: 1; position: relative; }
 
         .chat-input {
             width: 100%;
@@ -270,22 +282,12 @@
             border-radius: 50%;
             transition: background 0.15s, color 0.15s;
         }
-        .action-btn:hover {
-            background: var(--surface);
-            color: var(--accent);
-        }
-        .action-btn.recording {
-            color: #ef4444;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
+        .action-btn:hover { background: var(--surface); color: var(--accent); }
+        .action-btn.recording { color: #ef4444; animation: pulse 1.5s infinite; }
 
+        /* ── Key Takeaways Panel ── */
         .side-panel {
-            width: 260px;
+            width: 280px;
             flex-shrink: 0;
             background: var(--surface);
             border-left: 1px solid var(--border);
@@ -295,24 +297,23 @@
             flex-direction: column;
             gap: 12px;
         }
-
         .side-panel h3 { font-size: 15px; margin: 0; }
-
-        .point-item {
-            padding-bottom: 14px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .point-item:last-of-type { border-bottom: none; }
-
-        .point-item h4 {
+        .takeaway-item {
+            padding: 10px 12px;
+            background: var(--bg);
+            border-radius: var(--radius-sm);
             font-size: 13px;
-            margin: 0 0 4px 0;
-            color: var(--accent);
+            line-height: 1.5;
+            border-left: 3px solid var(--accent);
+            animation: fadeIn 0.3s ease-out;
         }
-
-        .point-item p { font-size: 13px; margin: 0; color: var(--fg-muted); }
-
+        .takeaway-placeholder {
+            text-align: center;
+            color: var(--fg-muted);
+            font-size: 13px;
+            padding: 20px 12px;
+            line-height: 1.5;
+        }
         .motivation-chip {
             background: var(--soft-orange);
             border-radius: var(--radius-sm);
@@ -320,86 +321,60 @@
             font-size: 13px;
             font-weight: 600;
             line-height: 1.4;
+            margin-top: auto;
         }
 
         @media (max-width: 900px) {
             .side-panel { display: none; }
         }
 
-        .menu-btn {
-            display: none;
+        .clear-btn {
             background: none;
             border: none;
             cursor: pointer;
-            padding: 4px 8px;
-            font-size: 22px;
-            color: var(--fg);
-            touch-action: manipulation;
+            font-size: 14px;
+            color: var(--fg-muted);
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            transition: all 0.15s;
+            font-family: var(--font-body);
+            font-weight: 600;
         }
+        .clear-btn:hover { background: var(--soft-red); color: #B91C1C; }
 
-        @media (max-width: 700px) {
-            .menu-btn { display: flex; align-items: center; }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
 
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-
     <div class="chat-top-bar">
-        <button class="menu-btn" onclick="toggleSidebar()" aria-label="Open subjects menu">&#9776;</button>
         <a href="../index.html" class="back-btn" style="margin-right:4px;" aria-label="Back to Hub">&#8592;</a>
         <div class="avatar">S</div>
         <div class="chat-top-info">
             <strong>Sathi AI</strong>
-            <div class="status">&#9679; Online &amp; Calm</div>
+            <div class="status">&#9679; Online &amp; Ready</div>
         </div>
-        <button class="dark-mode-toggle" onclick="SathiDarkMode.toggle()" aria-label="Toggle dark mode" style="margin-left:auto;"><span class="dark-mode-icon">🌙</span></button>
+        <button class="clear-btn" onclick="clearChat()" title="Clear conversation">🗑️ Clear</button>
+        <button class="dark-mode-toggle" onclick="SathiDarkMode.toggle()" aria-label="Toggle dark mode" style="margin-left:4px;"><span class="dark-mode-icon">🌙</span></button>
     </div>
 
     <div class="chat-layout">
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-title">Subjects</div>
-            <button class="subject-item active" onclick="selectSubject(this)">&#127963; History</button>
-            <button class="subject-item" onclick="selectSubject(this)">&#9878; Pol. Science</button>
-            <button class="subject-item" onclick="selectSubject(this)">&#127757; Geography</button>
-            <button class="subject-item" onclick="selectSubject(this)">&#129309; Sociology</button>
-
-            <div class="daily-quote">
-                &#128172; <strong>Dost ki advice:</strong><br>
-                "Koshish karne walon ki kabhi haar nahi hoti." &#10024;
-            </div>
-        </aside>
-
         <main class="main-chat">
-            <div class="chat-messages" id="chatWindow">
-                <div class="message sathi">
-                    Hey yaar! &#128075; Aaj ka kya plan hai? History ka koi topic samjhna hai ya bas thodi motivation chahiye? Tension mat lena, main hoon na!
-                </div>
-                <div class="message user">
-                    Bhai, Harappan Civilization wala topic thoda tough lag raha hai. Kya tum depth mein samjha sakte ho?
-                </div>
-                <div class="message sathi">
-                    Arre bilkul! Harappan Civilization toh bohot interesting hai. &#128516;<br><br>
-                    Ye duniya ki sabse purani civilizations mein se ek thi. Inka <strong>Town Planning</strong> bohot advance tha — pakki bricks use ki thi, jo us time pe bohot badi baat thi!<br><br>
-                    Samajh aa raha hai na? Koi doubt ho toh beech mein hi puch lena. &#128071;
-                    <div class="highlight-box">
-                        &#128161; <strong>Exam Important Point:</strong><br>
-                        Harappan Civilization apne <strong>'Drainage System'</strong> ke liye sabse zyada famous hai. Har ghar se naliyan main drain se judi hoti thi!
-                    </div>
-                </div>
-            </div>
+            <div class="chat-messages" id="chatWindow"></div>
 
             <div class="input-area">
                 <input type="file" id="mediaUpload" accept="image/*,application/pdf" style="display:none" onchange="handleMediaUpload(event)">
                 <button class="action-btn" onclick="document.getElementById('mediaUpload').click()" aria-label="Attach file" title="Upload Image or PDF">📎</button>
                 <button class="action-btn" id="micBtn" onclick="toggleVoice()" aria-label="Voice input" title="Voice Input">🎤</button>
-                
                 <div class="input-wrapper">
                     <textarea
                         class="chat-input"
                         id="userInput"
-                        placeholder="Pucho apne dost se kuch bhi..."
+                        placeholder="Ask me anything... kuch bhi pucho!"
                         rows="1"
                         aria-label="Type your question"
                     ></textarea>
@@ -408,43 +383,156 @@
             </div>
         </main>
 
-        <aside class="side-panel">
-            <h3>Sathi's Key Points &#128221;</h3>
-            <p style="font-size:13px;color:var(--fg-muted);">History: Harappan Civilization</p>
-
-            <div class="point-item">
-                <h4>1. Town Planning</h4>
-                <p>Grid system — sadke 90° pe kaat-ti thi ek dusre ko.</p>
+        <aside class="side-panel" id="sidePanel">
+            <h3>Key Takeaways 📝</h3>
+            <div id="takeawaysContent">
+                <div class="takeaway-placeholder">
+                    💡 Start a conversation and key takeaways will appear here automatically!
+                </div>
             </div>
-            <div class="point-item">
-                <h4>2. Baked Bricks</h4>
-                <p>Duniya ki pehli civilization jisne itne bade scale pe baked bricks use ki.</p>
-            </div>
-            <div class="point-item">
-                <h4>3. Great Bath</h4>
-                <p>Mohenjo-daro mein swimming pool type structure — 'Great Bath'.</p>
-            </div>
-            <div class="point-item">
-                <h4>4. Drainage System &#11088;</h4>
-                <p>Covered drains — most favourite exam question!</p>
-            </div>
-
             <div class="motivation-chip">
-                &#128170; Tu bohot mehnat kar raha hai, result zaroor milega! Keep it up. &#128293;
+                💪 Tu bohot mehnat kar raha hai, result zaroor milega! Keep it up. 🔥
             </div>
         </aside>
     </div>
 
 <script>
-// Auto-resize textarea
-var inputEl = document.getElementById('userInput');
+/* ═══════════════════════════════════════════════════════════════
+   MODULAR MARKDOWN RENDERER
+   Lightweight renderer supporting: headings, bold/italic, code blocks,
+   inline code, tables, ordered/unordered lists, blockquotes,
+   horizontal rules, and links.
+   Can be replaced with a library (e.g. marked.js) without touching
+   any other code — just swap this function.
+   ═══════════════════════════════════════════════════════════════ */
+function renderMarkdown(text) {
+    if (!text || typeof text !== 'string') return '';
 
+    // Step 1: Extract and protect code blocks from further processing
+    var codeBlocks = [];
+    var html = text.replace(/```(\w*)\n([\s\S]*?)```/g, function(m, lang, code) {
+        var idx = codeBlocks.length;
+        var escaped = code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        var label = lang ? '<div style="font-size:11px;font-weight:700;color:var(--fg-muted);margin-bottom:4px;text-transform:uppercase;">' + lang + '</div>' : '';
+        codeBlocks.push('<pre>' + label + '<code>' + escaped + '</code></pre>');
+        return '%%CODEBLOCK_' + idx + '%%';
+    });
+
+    // Step 2: Escape HTML in remaining text
+    html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    // Step 3: Inline code (must come before other inline formatting)
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+    // Step 4: Tables — detect header row, separator, body rows
+    html = html.replace(/(?:^|\n)(\|.+\|)\n(\|[\s\-:|]+\|)\n((?:\|.+\|\n?)+)/g, function(m, header, sep, body) {
+        var t = '<table><thead><tr>';
+        header.split('|').filter(function(c){return c.trim();}).forEach(function(cell){
+            t += '<th>' + cell.trim() + '</th>';
+        });
+        t += '</tr></thead><tbody>';
+        body.trim().split('\n').forEach(function(row){
+            t += '<tr>';
+            row.split('|').filter(function(c){return c.trim();}).forEach(function(cell){
+                t += '<td>' + cell.trim() + '</td>';
+            });
+            t += '</tr>';
+        });
+        t += '</tbody></table>';
+        return t;
+    });
+
+    // Step 5: Headings
+    html = html.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
+    html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+    // Step 6: Horizontal rules
+    html = html.replace(/^(?:---|\*\*\*|___)$/gm, '<hr>');
+
+    // Step 7: Bold + italic combinations
+    html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/(?<!\w)\*(.+?)\*(?!\w)/g, '<em>$1</em>');
+
+    // Step 8: Blockquotes (multi-line support)
+    html = html.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+    // Merge consecutive blockquotes
+    html = html.replace(/<\/blockquote>\n?<blockquote>/g, '<br>');
+
+    // Step 9: Unordered lists (-, *, + markers)
+    html = html.replace(/^(?:[-*+]) (.+)$/gm, '<li>$1</li>');
+
+    // Step 10: Ordered lists (1., 2., etc.)
+    html = html.replace(/^\d+\. (.+)$/gm, '<oli>$1</oli>');
+
+    // Wrap consecutive <li> in <ul> and <oli> in <ol>
+    html = html.replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>');
+    html = html.replace(/((?:<oli>.*<\/oli>\n?)+)/g, function(m) {
+        return '<ol>' + m.replace(/<\/?oli>/g, function(tag) {
+            return tag.replace('oli', 'li');
+        }) + '</ol>';
+    });
+
+    // Step 11: Links [text](url)
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+
+    // Step 12: Line breaks (preserve newlines as <br>)
+    html = html.replace(/\n/g, '<br>');
+
+    // Step 13: Clean up extra <br> around block elements
+    html = html.replace(/<\/(h[1-4]|blockquote|pre|ul|ol|table|hr)><br>/g, '</$1>');
+    html = html.replace(/<br><(h[1-4]|blockquote|pre|ul|ol|table|hr)/g, '<$1');
+    html = html.replace(/<br><\/(ul|ol)>/g, '</$1>');
+
+    // Step 14: Restore code blocks
+    codeBlocks.forEach(function(block, idx) {
+        html = html.replace('%%CODEBLOCK_' + idx + '%%', block);
+    });
+
+    return html;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SAFE LOCALSTORAGE HELPER
+   ═══════════════════════════════════════════════════════════════ */
+function safeGetJSON(key, fallback) {
+    try {
+        var data = localStorage.getItem(key);
+        if (!data) return fallback;
+        return JSON.parse(data);
+    } catch (e) {
+        console.warn('localStorage corrupted for key:', key, '— resetting');
+        try { localStorage.removeItem(key); } catch(e2) {}
+        return fallback;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════════════════════════ */
+var chatHistory = [];
+var messageCount = 0;
+var isSending = false;
+var currentAbortController = null;
+var isRecording = false;
+var recognition = null;
+
+var WELCOME_MESSAGE = '👋 Hi! I\'m Sathi AI.\n\nI can help with **any subject**, exam, coding, mathematics, science, humanities, AI, interview preparation, competitive exams, career guidance, writing, reasoning, or general knowledge.\n\n**Ask me anything** to get started! 🚀';
+
+/* ═══════════════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', function() {
+    loadChatHistory();
+});
+
+var inputEl = document.getElementById('userInput');
 inputEl.addEventListener('input', function() {
     this.style.height = 'auto';
     this.style.height = Math.min(this.scrollHeight, 120) + 'px';
 });
-
-// Enter to send (Shift+Enter = newline)
 inputEl.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -452,260 +540,325 @@ inputEl.addEventListener('keydown', function(e) {
     }
 });
 
-let chatHistory = [];
-let isRecording = false;
-let recognition = null;
-
-window.addEventListener('DOMContentLoaded', () => {
-    loadChatHistory();
-});
-
+/* ═══════════════════════════════════════════════════════════════
+   VOICE RECOGNITION
+   ═══════════════════════════════════════════════════════════════ */
 if ('webkitSpeechRecognition' in window) {
     recognition = new webkitSpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = false;
-    recognition.lang = 'hi-IN'; // Hinglish
-    
+    recognition.lang = 'hi-IN';
     recognition.onresult = function(event) {
-        const text = event.results[0][0].transcript;
+        var text = event.results[0][0].transcript;
         document.getElementById('userInput').value = text;
         sendMessage();
     };
-    
-    recognition.onerror = function(event) {
-        console.error("Speech recognition error", event.error);
-        stopVoice();
-    };
-    
-    recognition.onend = function() {
-        stopVoice();
-    };
+    recognition.onerror = function() { stopVoice(); };
+    recognition.onend = function() { stopVoice(); };
 }
 
 function toggleVoice() {
-    if (!recognition) {
-        alert("Speech recognition is not supported in this browser. Try Chrome.");
-        return;
-    }
-    if (isRecording) {
-        recognition.stop();
-        stopVoice();
-    } else {
-        recognition.start();
-        isRecording = true;
-        document.getElementById('micBtn').classList.add('recording');
-    }
+    if (!recognition) { alert("Speech recognition is not supported in this browser. Try Chrome."); return; }
+    if (isRecording) { recognition.stop(); stopVoice(); }
+    else { recognition.start(); isRecording = true; document.getElementById('micBtn').classList.add('recording'); }
 }
-
-function stopVoice() {
-    isRecording = false;
-    document.getElementById('micBtn').classList.remove('recording');
-}
+function stopVoice() { isRecording = false; document.getElementById('micBtn').classList.remove('recording'); }
 
 function speakText(text) {
     if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g, ''));
+        var utterance = new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g, '').replace(/\*\*/g, '').substring(0, 500));
         utterance.lang = 'hi-IN';
         window.speechSynthesis.speak(utterance);
     }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   TYPING INDICATOR
+   ═══════════════════════════════════════════════════════════════ */
 function showTyping() {
-    var chat  = document.getElementById('chatWindow');
-    var typingEl = document.createElement('div');
-    typingEl.className = 'typing-indicator';
-    typingEl.id = 'typingIndicator';
-    var d1 = document.createElement('span'); d1.className = 'typing-dot';
-    var d2 = document.createElement('span'); d2.className = 'typing-dot';
-    var d3 = document.createElement('span'); d3.className = 'typing-dot';
-    typingEl.appendChild(d1);
-    typingEl.appendChild(d2);
-    typingEl.appendChild(d3);
-    chat.appendChild(typingEl);
+    var chat = document.getElementById('chatWindow');
+    var el = document.createElement('div');
+    el.className = 'typing-indicator'; el.id = 'typingIndicator';
+    for (var i = 0; i < 3; i++) { var d = document.createElement('span'); d.className = 'typing-dot'; el.appendChild(d); }
+    chat.appendChild(el);
     scrollToBottom();
 }
-
 function hideTyping() {
-    var indicator = document.getElementById('typingIndicator');
-    if (indicator) indicator.parentNode.removeChild(indicator);
+    var el = document.getElementById('typingIndicator');
+    if (el) el.parentNode.removeChild(el);
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   LOCALSTORAGE PERSISTENCE (capped at 100 messages)
+   ═══════════════════════════════════════════════════════════════ */
 function saveMessageToLocalStorage(text, isUser, isHtml, rawText) {
-    let savedHistory = [];
-    try {
-        savedHistory = JSON.parse(localStorage.getItem('sathi_chat_history')) || [];
-    } catch (e) {
-        savedHistory = [];
-    }
+    var savedHistory = safeGetJSON('sathi_chat_history', []);
     savedHistory.push({ text: text, isUser: isUser, isHtml: isHtml, rawText: rawText });
-    if (savedHistory.length > 10) {
-        savedHistory = savedHistory.slice(-10);
+    // Cap at 100 messages — discard oldest
+    if (savedHistory.length > 100) {
+        savedHistory = savedHistory.slice(-100);
     }
-    localStorage.setItem('sathi_chat_history', JSON.stringify(savedHistory));
+    try {
+        localStorage.setItem('sathi_chat_history', JSON.stringify(savedHistory));
+    } catch (e) {
+        // Storage full — clear old data and retry
+        console.warn('localStorage full, clearing chat history');
+        try {
+            localStorage.removeItem('sathi_chat_history');
+            localStorage.setItem('sathi_chat_history', JSON.stringify(savedHistory.slice(-20)));
+        } catch (e2) {}
+    }
 }
 
 function loadChatHistory() {
-    let savedHistory = [];
-    try {
-        savedHistory = JSON.parse(localStorage.getItem('sathi_chat_history')) || [];
-    } catch (e) {
-        savedHistory = [];
-    }
-    
+    var savedHistory = safeGetJSON('sathi_chat_history', []);
+    var chatWindow = document.getElementById('chatWindow');
+
     if (savedHistory.length > 0) {
-        const chatWindow = document.getElementById('chatWindow');
         chatWindow.innerHTML = '';
-        
-        const notice = document.createElement('div');
-        notice.className = 'restored-notice';
-        notice.style.cssText = 'text-align: center; font-size: 12px; color: var(--fg-muted); opacity: 0.8; margin: 12px 0; font-family: var(--font-body); font-weight: 600; padding: 6px 12px; background: var(--accent-light); border-radius: var(--radius-sm); border: 1px solid var(--border); display: inline-block; align-self: center;';
+
+        var notice = document.createElement('div');
+        notice.style.cssText = 'text-align:center;font-size:12px;color:var(--fg-muted);opacity:0.8;margin:12px 0;font-family:var(--font-body);font-weight:600;padding:6px 12px;background:var(--accent-light);border-radius:var(--radius-sm);border:1px solid var(--border);display:inline-block;align-self:center;';
         notice.textContent = '✨ Previous conversation restored';
-        
-        const noticeContainer = document.createElement('div');
-        noticeContainer.style.cssText = 'display: flex; justify-content: center; width: 100%; margin-bottom: 12px;';
-        noticeContainer.appendChild(notice);
-        chatWindow.appendChild(noticeContainer);
-        
-        savedHistory.forEach(msg => {
+        var nc = document.createElement('div');
+        nc.style.cssText = 'display:flex;justify-content:center;width:100%;margin-bottom:12px;';
+        nc.appendChild(notice);
+        chatWindow.appendChild(nc);
+
+        savedHistory.forEach(function(msg) {
             appendMessage(msg.text, msg.isUser, msg.isHtml, false);
-            chatHistory.push({
-                role: msg.isUser ? 'user' : 'model',
-                text: msg.rawText || msg.text
-            });
+            var safeText = msg.rawText || msg.text;
+            if (typeof safeText !== 'string') safeText = '[Previous content]';
+            chatHistory.push({ role: msg.isUser ? 'user' : 'model', text: safeText });
+            messageCount++;
         });
-        
         scrollToBottom();
+    } else {
+        appendMessage(renderMarkdown(WELCOME_MESSAGE), false, true, false);
     }
 }
 
-function appendMessage(text, isUser, isHtml = false, shouldSave = true, rawText = null) {
-    var chat  = document.getElementById('chatWindow');
+/* ═══════════════════════════════════════════════════════════════
+   APPEND MESSAGE
+   ═══════════════════════════════════════════════════════════════ */
+function appendMessage(text, isUser, isHtml, shouldSave, rawText) {
+    var chat = document.getElementById('chatWindow');
     var msg = document.createElement('div');
     msg.className = 'message anim-fade ' + (isUser ? 'user' : 'sathi');
-    if (isHtml) {
-        msg.innerHTML = text;
-    } else {
-        msg.textContent = text;
-    }
+    if (isHtml) { msg.innerHTML = text; } else { msg.textContent = text; }
     chat.appendChild(msg);
     scrollToBottom();
-    
     if (shouldSave) {
         saveMessageToLocalStorage(text, isUser, isHtml, rawText || text);
     }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   MEDIA UPLOAD
+   ═══════════════════════════════════════════════════════════════ */
 async function handleMediaUpload(event) {
-    const file = event.target.files[0];
+    var file = event.target.files[0];
     if (!file) return;
-    
-    appendMessage(`📎 Uploading ${file.name}...`, true, false, true, `📎 Uploading ${file.name}...`);
+    appendMessage('📎 Uploading ' + file.name + '...', true, false, true, '📎 Uploading ' + file.name);
     showTyping();
     document.getElementById('sendBtn').disabled = true;
-    
-    const formData = new FormData();
+    var formData = new FormData();
     formData.append('media', file);
-    formData.append('prompt', 'Please explain the contents of this file clearly in Hinglish.');
-    
+    formData.append('prompt', 'Please explain the contents of this file clearly. Use markdown formatting.');
     try {
-        const response = await fetch('/api/analyze-media', {
-            method: 'POST',
-            body: formData
-        });
-        const data = await response.json();
+        var response = await fetch('/api/analyze-media', { method: 'POST', body: formData });
+        var data = await response.json();
         hideTyping();
-        
         if (data.error) throw new Error(data.error);
-        
-        let htmlText = data.response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
-        appendMessage(htmlText, false, true, true, data.response);
-        speakText(data.response);
-        
+        appendMessage(renderMarkdown(data.response), false, true, true, data.response);
+        messageCount++;
     } catch (err) {
         hideTyping();
-        appendMessage("Sorry, media upload failed: " + err.message, false, false, false);
+        appendMessage('Sorry, media upload failed: ' + err.message, false, false, false);
     }
-    
     document.getElementById('sendBtn').disabled = false;
     event.target.value = '';
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   SEND MESSAGE — with AbortController and duplicate guard
+   ═══════════════════════════════════════════════════════════════ */
 async function sendMessage() {
+    if (isSending) return; // Prevent duplicate calls
+
     var input = document.getElementById('userInput');
-    var text  = input.value.trim();
+    var text = input.value.trim();
     if (!text) return;
 
+    isSending = true;
     appendMessage(text, true, false, true, text);
     input.value = '';
     input.style.height = 'auto';
-    
     document.getElementById('sendBtn').disabled = true;
+    input.disabled = true;
     showTyping();
 
+    // Cancel any stale pending request
+    if (currentAbortController) {
+        try { currentAbortController.abort(); } catch(e) {}
+    }
+    currentAbortController = new AbortController();
+
     try {
-        const response = await fetch('/api/agent', {
+        var response = await fetch('/api/agent', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 message: text,
                 history: chatHistory,
                 subjectsData: window.SathiStore ? window.SathiStore.getSubjects() : []
-            })
+            }),
+            signal: currentAbortController.signal
         });
-        const data = await response.json();
-        
+        var data = await response.json();
         hideTyping();
-        
+
         if (data.error) throw new Error(data.error);
-        
+
+        var responseText = (typeof data.response === 'string') ? data.response : JSON.stringify(data.response);
+
         chatHistory.push({ role: 'user', text: text });
-        chatHistory.push({ role: 'model', text: data.response });
-        
-        let htmlText = data.response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
-        appendMessage(htmlText, false, true, true, data.response);
+        chatHistory.push({ role: 'model', text: responseText });
+        messageCount += 2;
+
+        var htmlText = renderMarkdown(responseText);
+        appendMessage(htmlText, false, true, true, responseText);
+
+        // Interactive Quiz Button — if QuizAgent handled the request
+        if (data.handledBy === 'QuizAgent' && data.quizTopic) {
+            var quizTopic = data.quizTopic;
+            var card = document.createElement('div');
+            card.className = 'quiz-action-card anim-fade';
+            card.innerHTML = '<p>🎯 Ready to test your knowledge?</p>' +
+                '<a class="quiz-action-btn" href="quiz.html?topic=' + encodeURIComponent(quizTopic) + '">Generate Quiz on "' + quizTopic.substring(0, 40) + '" 🚀</a>';
+            document.getElementById('chatWindow').appendChild(card);
+            scrollToBottom();
+        }
 
         if (data.handledBy) {
             var chat = document.getElementById('chatWindow');
             var badge = document.createElement('span');
-            badge.style.cssText = 'font-size:11px; color:gray; font-style:italic; align-self:flex-start; margin-top:-8px; padding-left:16px;';
+            badge.style.cssText = 'font-size:11px;color:gray;font-style:italic;align-self:flex-start;margin-top:-8px;padding-left:16px;';
             badge.textContent = '🤖 via ' + data.handledBy;
             chat.appendChild(badge);
             scrollToBottom();
         }
 
-        speakText(data.response);
-        
+        speakText(responseText);
+
+        // Generate dynamic takeaways after sufficient conversation
+        if (messageCount >= 6) { generateTakeaways(); }
+
     } catch (err) {
         hideTyping();
-        appendMessage("Sorry, I couldn't process that: " + err.message, false, false, false);
+        if (err.name === 'AbortError') {
+            // Request was cancelled — do nothing
+        } else {
+            var errMsg = classifyFetchError(err);
+            appendMessage(errMsg, false, false, false);
+        }
     }
-    
+
+    isSending = false;
+    currentAbortController = null;
     document.getElementById('sendBtn').disabled = false;
+    input.disabled = false;
     input.focus();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ERROR CLASSIFICATION (frontend)
+   ═══════════════════════════════════════════════════════════════ */
+function classifyFetchError(err) {
+    var msg = (err.message || '').toLowerCase();
+    if (msg.includes('failed to fetch') || msg.includes('networkerror') || msg.includes('network')) {
+        return '🌐 Internet connection issue hai. Apna connection check karo aur dobara try karo!';
+    }
+    if (msg.includes('timeout') || msg.includes('aborted')) {
+        return '⏳ Request timeout ho gaya. Dobara try karo!';
+    }
+    if (msg.includes('rate') || msg.includes('429') || msg.includes('quota')) {
+        return '😅 Thoda ruko! Rate limit hit ho gaya. 30 seconds baad try karo.';
+    }
+    if (msg.includes('500') || msg.includes('server')) {
+        return '🛠️ Server busy hai. Thodi der baad try karo!';
+    }
+    return '😔 Kuch issue aa gaya: ' + err.message;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   KEY TAKEAWAYS (dynamic, Gemini-generated)
+   ═══════════════════════════════════════════════════════════════ */
+var takeawaysTimeout = null;
+
+async function generateTakeaways() {
+    if (takeawaysTimeout) clearTimeout(takeawaysTimeout);
+    takeawaysTimeout = setTimeout(async function() {
+        try {
+            var recentHistory = chatHistory.slice(-10);
+            var summary = recentHistory.map(function(m) {
+                return (m.role === 'user' ? 'Student: ' : 'Tutor: ') + (m.text || '').substring(0, 300);
+            }).join('\n');
+
+            var response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: 'Based on this conversation, generate 3-5 key takeaways as a JSON array of strings. Each takeaway should be concise (1-2 sentences). Return ONLY the JSON array, no markdown:\n\n' + summary,
+                    history: []
+                })
+            });
+            var data = await response.json();
+            if (data.response) {
+                try {
+                    var raw = data.response.trim().replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+                    var takeaways = JSON.parse(raw);
+                    if (Array.isArray(takeaways) && takeaways.length > 0) {
+                        renderTakeaways(takeaways);
+                    }
+                } catch (e) {
+                    // Fallback: show raw text as single takeaway
+                    renderTakeaways([data.response.substring(0, 200)]);
+                }
+            }
+        } catch (err) {
+            console.error('Takeaways generation failed:', err);
+        }
+    }, 2000);
+}
+
+function renderTakeaways(takeaways) {
+    var container = document.getElementById('takeawaysContent');
+    container.innerHTML = '';
+    takeaways.forEach(function(t) {
+        var div = document.createElement('div');
+        div.className = 'takeaway-item';
+        div.textContent = (typeof t === 'string') ? t : JSON.stringify(t);
+        container.appendChild(div);
+    });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CLEAR CHAT
+   ═══════════════════════════════════════════════════════════════ */
+function clearChat() {
+    if (!confirm('Clear the entire conversation? This cannot be undone.')) return;
+    chatHistory = [];
+    messageCount = 0;
+    try { localStorage.removeItem('sathi_chat_history'); } catch(e) {}
+    document.getElementById('chatWindow').innerHTML = '';
+    document.getElementById('takeawaysContent').innerHTML = '<div class="takeaway-placeholder">💡 Start a conversation and key takeaways will appear here automatically!</div>';
+    appendMessage(renderMarkdown(WELCOME_MESSAGE), false, true, false);
 }
 
 function scrollToBottom() {
     var chat = document.getElementById('chatWindow');
     chat.scrollTop = chat.scrollHeight;
-}
-
-function selectSubject(el) {
-    var items = document.querySelectorAll('.subject-item');
-    for (var i = 0; i < items.length; i++) {
-        items[i].classList.remove('active');
-    }
-    el.classList.add('active');
-    closeSidebar();
-}
-
-function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
-    document.getElementById('sidebarOverlay').classList.toggle('open');
-}
-
-function closeSidebar() {
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('sidebarOverlay').classList.remove('open');
 }
 </script>
 
