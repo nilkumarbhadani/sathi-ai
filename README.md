@@ -5,6 +5,12 @@
 > *"Padhai ab burden nahi, fun hogi!"* — For every Indian student,
 > regardless of stream or language.
 
+## 🔗 Live Links
+
+- 🌐 **Live Demo:** https://sathi-ai.onrender.com
+- 🎥 **Video Walkthrough:** https://youtu.be/pvWItaPByEk
+- 💻 **GitHub Repo:** (current repo)
+
 ---
 
 ## 🎯 Problem Statement
